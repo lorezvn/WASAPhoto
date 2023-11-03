@@ -6,14 +6,74 @@ info:
     of the WASA exam of Sapienza University of Rome.
   version: 0.0.1
 paths:
-  /users/:
-    #...
-              
-    
-
-  
-  
-  
+  /session:
+    post:
+      tags: ["login"]
+      summary: Logs in the user
+      description: |-
+        If the user does not exist, it will be created,
+        and an identifier is returned.
+        If the user exists, the user identifier is returned.
+      operationId: doLogin
+      requestBody:
+        description: User details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "Maria"
+                  pattern: 'ˆ.*?$'
+                  minLength: 3
+                  maxLength: 16
+        required: true
+      responses:
+        '201':
+          description: User log-in action successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: integer
+                    example: 1
+                    
+                    
+  /users/{userId}/username:
+    put:
+      tags: ["user"]
+      summary: Set the username of the User
+      description: |-
+        It sets a new username for the user if the user exists
+      operationId: setMyUserName
+      parameters:
+      - name: userId
+        description: Identifier of the user
+        in: path
+        schema:
+          type: integer
+          example: 1
+        required: true
+      requestBody:
+        description: New username
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  $ref: "#/components/schemas/User/properties/username"
+        required: true
+      responses:
+        "204":
+          description: "Username successfully set"
+        "404":
+          description: "User not found"
+        
+      
 components:
   schemas:
   
@@ -29,7 +89,10 @@ components:
         username:
           description: The username of the User
           type: string
-          example: "lorenzo.zanda"
+          example: "Maria"
+          pattern: 'ˆ.*?$'
+          minLength: 3
+          maxLength: 16
         followers:
           description: List of all users who follow the User
           type: array
@@ -45,6 +108,7 @@ components:
           type: array
           items: 
             $ref: "#/components/schemas/Photo"
+            
     Photo:
       description: This object represents a single Photo that can be uploaded by a User on WASAPhoto
       type: object
@@ -68,3 +132,8 @@ components:
           type: integer
           example: 1
         
+      
+      
+          
+          
+          
