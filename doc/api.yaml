@@ -1,0 +1,70 @@
+openapi: 3.0.3
+info: 
+  title: WASAPhoto
+  description: |- 
+    This OpenAPI document describes the APIs required for the Project "WASAPhoto" 
+    of the WASA exam of Sapienza University of Rome.
+  version: 0.0.1
+paths:
+  /users/:
+    #...
+              
+    
+
+  
+  
+  
+components:
+  schemas:
+  
+    User:
+      description: This object represents a single User of WASAPhoto
+      type: object
+      properties:
+        id:
+          description: The unique identifier of the User
+          type: integer
+          example: 1234
+          readOnly: true
+        username:
+          description: The username of the User
+          type: string
+          example: "lorenzo.zanda"
+        followers:
+          description: List of all users who follow the User
+          type: array
+          items: 
+            $ref: "#/components/schemas/User"
+        following:
+          description: List of all users followed by the User
+          type: array
+          items: 
+            $ref: "#/components/schemas/User"
+        photos:
+          description: Stream of Photos uploaded by the User
+          type: array
+          items: 
+            $ref: "#/components/schemas/Photo"
+    Photo:
+      description: This object represents a single Photo that can be uploaded by a User on WASAPhoto
+      type: object
+      properties:
+        id:
+          description: The unique identifier of the Photo
+          type: integer
+          example: 1234
+          readOnly: true
+        date:
+          description: Date that represents when the Photo was uploaded 
+          type: string
+          format: date-time
+          example: "2017-07-21T17:32:28Z"
+        likes:
+          description: Number of likes that the Photo has
+          type: integer
+          example: 1
+        comments: 
+          description: Number of comments that the Photo has
+          type: integer
+          example: 1
+        
