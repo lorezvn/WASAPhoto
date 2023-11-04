@@ -72,6 +72,40 @@ paths:
           description: "Username successfully set"
         "404":
           description: "User not found"
+          
+  /users/{userId}/photos:
+    post:
+      tags: ["user"]
+      summary: Upload a new Photo on WASAPhoto
+      description: |-
+        Takes an image and returns a new Photo
+      operationId: uploadPhoto
+      parameters:
+      - name: userId
+        description: Identifier of the user
+        in: path
+        schema:
+          type: integer
+          example: 1
+        required: true
+      requestBody:
+        description: Image to be uploaded
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+        required: true
+      responses:
+        "201":
+          description: Photo succesfully uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Photo"
+        "400":
+          description: Invalid image
+        
         
       
 components:
@@ -81,7 +115,7 @@ components:
       description: This object represents a single User of WASAPhoto
       type: object
       properties:
-        id:
+        userId:
           description: The unique identifier of the User
           type: integer
           example: 1234
@@ -113,11 +147,15 @@ components:
       description: This object represents a single Photo that can be uploaded by a User on WASAPhoto
       type: object
       properties:
-        id:
+        photoId:
           description: The unique identifier of the Photo
           type: integer
           example: 1234
           readOnly: true
+        image: 
+          description: The image of the Photo 
+          type: string
+          format: binary
         date:
           description: Date that represents when the Photo was uploaded 
           type: string
@@ -134,6 +172,8 @@ components:
         
       
       
+          
+          
           
           
           
