@@ -23,11 +23,7 @@ paths:
               type: object
               properties:
                 username:
-                  type: string
-                  example: "Maria"
-                  pattern: 'ˆ.*?$'
-                  minLength: 3
-                  maxLength: 16
+                  $ref: "#/components/schemas/Username"
         required: true
       responses:
         '201':
@@ -38,24 +34,22 @@ paths:
                 type: object
                 properties:
                   userId:
-                    type: integer
-                    example: 1
+                    $ref: "#/components/schemas/UserID"
                     
                     
   /users/{userId}/username:
     put:
-      tags: ["user"]
-      summary: Set the username of the User
+      tags: ["user-profile"]
+      summary: Set the username of the user
       description: |-
         It sets a new username for the user if the user exists
       operationId: setMyUserName
       parameters:
       - name: userId
-        description: Identifier of the user
+        description: Identifier of the user who wants to modify the username
         in: path
         schema:
-          type: integer
-          example: 1
+          $ref: "#/components/schemas/UserID" 
         required: true
       requestBody:
         description: New username
@@ -65,32 +59,27 @@ paths:
               type: object
               properties:
                 username:
-                  type: string
-                  example: "Maria"
-                  pattern: 'ˆ.*?$'
-                  minLength: 3
-                  maxLength: 16
+                  $ref: "#/components/schemas/Username" 
         required: true
       responses:
         "204":
-          description: "Username successfully set"
+          description: Username successfully set
         "404":
-          description: "User not found"
+          description: User not found
           
   /users/{userId}/photos:
     post:
-      tags: ["user"]
-      summary: Upload a new Photo on WASAPhoto
+      tags: ["photos"]
+      summary: Upload a new photo on WASAPhoto
       description: |-
         Takes an image and returns a new Photo
       operationId: uploadPhoto
       parameters:
       - name: userId
-        description: Identifier of the user
+        description: Identifier of the user who wants to upload a photo
         in: path
         schema:
-          type: integer
-          example: 1
+          $ref: "#/components/schemas/UserID" 
         required: true
       requestBody:
         description: Image to be uploaded
@@ -110,9 +99,33 @@ paths:
         "400":
           description: Invalid image
           
+    get:
+      tags: ["photos"]
+      summary: Get stream of photos by user ID
+      description: |-
+        Given the user id, returns the stream of photos
+      operationId: getMyStream
+      parameters:
+      - name: userId
+        in: path
+        schema: 
+          $ref: "#/components/schemas/UserID"
+        required: true
+      responses:
+        "200":
+          description: Stream of photos returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Photo"
+        "404":
+          description: User not found
+          
   /users/{userId}/following/{followingId}:
     put:
-      tags: ["user"]
+      tags: ["follow"]
       summary: Follow an existent user on WASAPhoto
       description: |-
         Given the id of the user who wants to follow another one (userId) and the
@@ -124,15 +137,13 @@ paths:
         description: Identifier of the user who wants to follow
         in: path
         schema:
-          type: integer
-          example: 1234
+          $ref: "#/components/schemas/UserID" 
         required: true
       - name: followingId
         description: Identifier of the user who will be followed
         in: path
         schema:
-          type: integer
-          example: 1234
+          $ref: "#/components/schemas/UserID" 
         required: true
       responses:
         "204": 
@@ -140,7 +151,7 @@ paths:
         "404":
           description: User not found
     delete:
-      tags: ["user"]
+      tags: ["follow"]
       summary: Unfollow an existent user on WASAPhoto
       description: |-
         Given the id of the user who wants to unfollow another one (userId) and the
@@ -153,24 +164,47 @@ paths:
         description: Identifier of the user who wants to unfollow
         in: path
         schema:
-          type: integer
-          example: 1234
+          $ref: "#/components/schemas/UserID" 
         required: true
       - name: followingId
         description: Identifier of the user who will be unfollowed
         in: path
         schema:
-          type: integer
-          example: 1234
+          $ref: "#/components/schemas/UserID" 
         required: true
       responses:
         "204": 
           description: User successfully unfollowed
         "404":
           description: User not found
-        
-        
+          
+  #operationId: banUser
+  #operationId: unbanUser
+  
+  /users/{userId}:
+    get:
+      tags: ["user-profile"]
+      summary: Get user profile by user ID
+      description: |-
+        Given the user id, returns the user profile
+      operationId: getUserProfile
+      parameters:
+      - name: userId
+        in: path
+        schema: 
+          $ref: "#/components/schemas/UserID"
+        required: true
+      responses:
+        "200":
+          description: User profile returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: User not found
       
+
 components:
   schemas:
     User:
@@ -178,17 +212,9 @@ components:
       type: object
       properties:
         userId:
-          description: The unique identifier of the User
-          type: integer
-          example: 1234
-          readOnly: true
+          $ref: "#/components/schemas/UserID"
         username:
-          description: The username of the User
-          type: string
-          example: "Maria"
-          pattern: 'ˆ.*?$'
-          minLength: 3
-          maxLength: 16
+           $ref: "#/components/schemas/Username"
         followers:
           description: List of all users who follow the User
           type: array
@@ -204,6 +230,22 @@ components:
           type: array
           items: 
             $ref: "#/components/schemas/Photo"
+            
+    UserID:
+        description: The unique identifier of the User
+        type: integer
+        example: 12345678
+        readOnly: true
+    
+    Username:
+        description: The username of the User
+        type: string
+        example: "wasa.photo"
+        pattern: 'ˆ.*?$'
+        minLength: 3
+        maxLength: 16
+      
+      
     Photo:
       description: This object represents a single Photo that can be uploaded by a User on WASAPhoto
       type: object
@@ -231,6 +273,11 @@ components:
           type: integer
           example: 1
         
+      
+      
+          
+          
+          
       
       
           
