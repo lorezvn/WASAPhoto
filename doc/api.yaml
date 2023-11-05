@@ -65,7 +65,11 @@ paths:
               type: object
               properties:
                 username:
-                  $ref: "#/components/schemas/User/properties/username"
+                  type: string
+                  example: "Maria"
+                  pattern: 'ˆ.*?$'
+                  minLength: 3
+                  maxLength: 16
         required: true
       responses:
         "204":
@@ -105,12 +109,70 @@ paths:
                 $ref: "#/components/schemas/Photo"
         "400":
           description: Invalid image
+          
+  /users/{userId}/following/{followingId}:
+    put:
+      tags: ["user"]
+      summary: Follow an existent user on WASAPhoto
+      description: |-
+        Given the id of the user who wants to follow another one (userId) and the
+        id of the user who will be followed (followingId), if they are actually 
+        users of WASAPhoto, this method allows the follow action
+      operationId: followUser
+      parameters:
+      - name: userId
+        description: Identifier of the user who wants to follow
+        in: path
+        schema:
+          type: integer
+          example: 1234
+        required: true
+      - name: followingId
+        description: Identifier of the user who will be followed
+        in: path
+        schema:
+          type: integer
+          example: 1234
+        required: true
+      responses:
+        "204": 
+          description: User successfully followed
+        "404":
+          description: User not found
+    delete:
+      tags: ["user"]
+      summary: Unfollow an existent user on WASAPhoto
+      description: |-
+        Given the id of the user who wants to unfollow another one (userId) and the
+        id of the user who will be unfollowed (followingId), if they are actually 
+        users of WASAPhoto and the user follows the other one, this method 
+        allows the unfollow action
+      operationId: unfollowUser
+      parameters:
+      - name: userId
+        description: Identifier of the user who wants to unfollow
+        in: path
+        schema:
+          type: integer
+          example: 1234
+        required: true
+      - name: followingId
+        description: Identifier of the user who will be unfollowed
+        in: path
+        schema:
+          type: integer
+          example: 1234
+        required: true
+      responses:
+        "204": 
+          description: User successfully unfollowed
+        "404":
+          description: User not found
         
         
       
 components:
   schemas:
-  
     User:
       description: This object represents a single User of WASAPhoto
       type: object
@@ -142,7 +204,6 @@ components:
           type: array
           items: 
             $ref: "#/components/schemas/Photo"
-            
     Photo:
       description: This object represents a single Photo that can be uploaded by a User on WASAPhoto
       type: object
@@ -172,8 +233,6 @@ components:
         
       
       
-          
-          
           
           
           
