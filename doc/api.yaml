@@ -36,7 +36,6 @@ paths:
                   userId:
                     $ref: "#/components/schemas/UserID"
                     
-                    
   /users/{userId}/username:
     put:
       tags: ["user-profile"]
@@ -64,10 +63,35 @@ paths:
       responses:
         "204":
           description: Username successfully set
+        "403": 
+          description: Username chosen already exists
         "404":
           description: User not found
           
-  /users/{userId}/photos:
+  /users/{userId}/photos/:
+    get:
+      tags: ["photos"]
+      summary: Get stream of photos of a user by user ID
+      description: |-
+        Given the user id, returns the stream of photos
+      operationId: getMyStream
+      parameters:
+      - name: userId
+        in: path
+        schema: 
+          $ref: "#/components/schemas/UserID"
+        required: true
+      responses:
+        "200":
+          description: Stream of photos returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Photo"
+        "404":
+          description: User not found
     post:
       tags: ["photos"]
       summary: Upload a new photo on WASAPhoto
@@ -98,30 +122,6 @@ paths:
                 $ref: "#/components/schemas/Photo"
         "400":
           description: Invalid image
-          
-    get:
-      tags: ["photos"]
-      summary: Get stream of photos by user ID
-      description: |-
-        Given the user id, returns the stream of photos
-      operationId: getMyStream
-      parameters:
-      - name: userId
-        in: path
-        schema: 
-          $ref: "#/components/schemas/UserID"
-        required: true
-      responses:
-        "200":
-          description: Stream of photos returned
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Photo"
-        "404":
-          description: User not found
           
   /users/{userId}/following/{followingId}:
     put:
@@ -177,9 +177,6 @@ paths:
           description: User successfully unfollowed
         "404":
           description: User not found
-          
-  #operationId: banUser
-  #operationId: unbanUser
   
   /users/{userId}:
     get:
@@ -203,8 +200,107 @@ paths:
                 $ref: "#/components/schemas/User"
         "404":
           description: User not found
-      
-
+          
+  /photos/{photoId}/likes:
+    put:
+      tags: ["photos"]
+      summary: Like a photo
+      description: |-
+        Given the photo id, it increments the number of likes that the photo currently has
+      operationId: likePhoto
+      parameters:
+      - name: photoId
+        in: path
+        schema: 
+          $ref: "#/components/schemas/PhotoID"
+        required: true
+      responses:
+        "200":
+          description: Added successfully a like to the photo 
+        "404":
+          description: Photo not found
+    delete:
+      tags: ["photos"]
+      summary: Unlike a photo
+      description: |-
+        Given the photo id, it decrements the number of likes that the photo currently has
+      operationId: unlikePhoto
+      parameters:
+      - name: photoId
+        in: path
+        schema: 
+          $ref: "#/components/schemas/PhotoID"
+        required: true
+      responses:
+        "200":
+          description: Removed successfully a like from the photo 
+        "403":
+          description: Like not existent, impossible to remove a non-existent like 
+        "404":
+          description: Photo not found
+          
+  /photos/{photoId}/comments/:
+    post:
+      tags: ["photos"]
+      summary: Comment a Photo
+      description: |- 
+        Given the photo id and a message, it creates a new Comment  
+      operationId: commentPhoto
+      parameters:
+      - name: photoId
+        in: path
+        schema: 
+          $ref: "#/components/schemas/PhotoID"
+        required: true
+      requestBody:
+        description: Message of the Comment 
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "This photo is amazing!"
+        required: true
+      responses:
+        "201":
+          description: Comment successfully posted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Comment"
+        "404":
+          description: Photo not found
+          
+  /photos/{photoId}/comments/{commentId}:
+    delete:
+      tags: ["photos"]
+      summary: Uncomment a Photo
+      description: |- 
+        Given the photo id and a comment id, deletes the Comment with the comment id 
+        that corresponds to the one given
+      operationId: uncommentPhoto
+      parameters:
+      - name: photoId
+        in: path
+        schema: 
+          $ref: "#/components/schemas/PhotoID"
+        required: true
+      - name: commentId
+        in: path
+        schema: 
+          $ref: "#/components/schemas/CommentID"
+        required: true
+      responses:
+        "200":
+          description: Comment successfully removed
+        "404":
+          description: Photo/comment not found
+          
+        
+        
+        
 components:
   schemas:
     User:
@@ -219,12 +315,18 @@ components:
           description: List of all users who follow the User
           type: array
           items: 
-            $ref: "#/components/schemas/User"
+            $ref: "#/components/schemas/UserID"
+        numberOfFollowers:
+          type: integer
+          example: 1
         following:
           description: List of all users followed by the User
           type: array
           items: 
-            $ref: "#/components/schemas/User"
+            $ref: "#/components/schemas/UserID"
+        numberOfFollowing:
+          type: integer
+          example: 1
         photos:
           description: Stream of Photos uploaded by the User
           type: array
@@ -251,10 +353,7 @@ components:
       type: object
       properties:
         photoId:
-          description: The unique identifier of the Photo
-          type: integer
-          example: 1234
-          readOnly: true
+          $ref: "#/components/schemas/PhotoID"
         image: 
           description: The image of the Photo 
           type: string
@@ -263,18 +362,64 @@ components:
           description: Date that represents when the Photo was uploaded 
           type: string
           format: date-time
-          example: "2017-07-21T17:32:28Z"
+          example: "2020-07-21T17:32:28Z"
         likes:
           description: Number of likes that the Photo has
           type: integer
           example: 1
-        comments: 
+        comments:
+          description: List of all comments posted on the Photo
+          type: array
+          items:
+            $ref: "#/components/schemas/Comment"
+        numberOfComments: 
           description: Number of comments that the Photo has
           type: integer
           example: 1
+          
+          
+    PhotoID:
+      description: The unique identifier of the Photo
+      type: integer
+      example: 567
+      readOnly: true
+          
+    Comment:
+      description: This object represents a single Comment that can be posted by a User 
+        on a Photo uploaded on WASAPhoto
+      type: object
+      properties:
+        commentId:
+          $ref: "#/components/schemas/CommentID"
+        userId:
+          description: user id of the User that posted the Comment
+          $ref: "#/components/schemas/UserID"
+        date:
+          description: Date that represents when the Comment was posted 
+          type: string
+          format: date-time
+          example: "2023-11-02T16:50:30Z"
+        message:
+          description: The message of the Comment 
+          type: string
+          example: "This photo is amazing!"
+          
+    CommentID:
+      description: The unique identifier of the Comment
+      type: integer
+      example: 11111111
+      readOnly: true
+      
+          
+        
+          
+        
         
       
       
+          
+          
+          
           
           
           
