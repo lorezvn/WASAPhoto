@@ -92,9 +92,10 @@ paths:
                   $ref: "#/components/schemas/Photo"
         "404":
           description: User not found
+          
     post:
       tags: ["photos"]
-      summary: Upload a new photo on WASAPhoto
+      summary: Upload a new Photo on WASAPhoto
       description: |-
         Takes an image and returns a new Photo
       operationId: uploadPhoto
@@ -123,13 +124,41 @@ paths:
         "400":
           description: Invalid image
           
-  /users/{userId}/following/{followingId}:
+  /users/{userId}/photos/{photoId}:
+    delete:
+      tags: ["photos"]
+      summary: Delete a Photo uploaded on WASAPhoto
+      description: |-
+        Given the user id of the user that uploaded the photo and the photo id of the 
+        photo itself, it deletes the photo from the stream of photos of the user
+      operationId: deletePhoto
+      parameters:
+      - name: userId
+        description: Identifier of the user who uploaded the photo
+        in: path
+        schema:
+          $ref: "#/components/schemas/UserID" 
+        required: true
+      - name: photoId
+        description: Identifier of the photo that the user wants to delete
+        in: path
+        schema:
+          $ref: "#/components/schemas/PhotoID" 
+        required: true
+      responses:
+        "200":
+          description: Photo successfully removed
+        "404":
+          description: User or Photo not found
+      
+          
+  /users/{userId}/follow/{followId}:
     put:
       tags: ["follow"]
       summary: Follow an existent user on WASAPhoto
       description: |-
         Given the id of the user who wants to follow another one (userId) and the
-        id of the user who will be followed (followingId), if they are actually 
+        id of the user who will be followed (followId), if they are actually 
         users of WASAPhoto, this method allows the follow action
       operationId: followUser
       parameters:
@@ -139,7 +168,7 @@ paths:
         schema:
           $ref: "#/components/schemas/UserID" 
         required: true
-      - name: followingId
+      - name: followId
         description: Identifier of the user who will be followed
         in: path
         schema:
@@ -150,12 +179,13 @@ paths:
           description: User successfully followed
         "404":
           description: User not found
+          
     delete:
       tags: ["follow"]
       summary: Unfollow an existent user on WASAPhoto
       description: |-
         Given the id of the user who wants to unfollow another one (userId) and the
-        id of the user who will be unfollowed (followingId), if they are actually 
+        id of the user who will be unfollowed (followId), if they are actually 
         users of WASAPhoto and the user follows the other one, this method 
         allows the unfollow action
       operationId: unfollowUser
@@ -166,7 +196,7 @@ paths:
         schema:
           $ref: "#/components/schemas/UserID" 
         required: true
-      - name: followingId
+      - name: followId
         description: Identifier of the user who will be unfollowed
         in: path
         schema:
@@ -175,6 +205,8 @@ paths:
       responses:
         "204": 
           description: User successfully unfollowed
+        "403":
+          description: Cannot unfollow a user who wasn't be followed
         "404":
           description: User not found
   
@@ -219,6 +251,7 @@ paths:
           description: Added successfully a like to the photo 
         "404":
           description: Photo not found
+          
     delete:
       tags: ["photos"]
       summary: Unlike a photo
@@ -253,7 +286,7 @@ paths:
           $ref: "#/components/schemas/PhotoID"
         required: true
       requestBody:
-        description: Message of the Comment 
+        description: UserID and message of the Comment 
         content:
           application/json:
             schema:
@@ -296,11 +329,68 @@ paths:
         "200":
           description: Comment successfully removed
         "404":
-          description: Photo/comment not found
+          description: Photo or Comment not found
+    
+  /users/{userId}/ban/{banId}:
+    put:
+      tags: ["ban"]
+      summary: Ban a User
+      description: |- 
+        Given the id of the user who wants to ban another one (userId) and the
+        id of the user to ban (banId), this method allows the ban operation, meaning
+        that the banned user will no longer be able to visualize the user profile of
+        the user who banned him
+      operationId: banUser
+      parameters:
+      - name: userId
+        description: Identifier of the user who wants to ban
+        in: path
+        schema:
+          $ref: "#/components/schemas/UserID" 
+        required: true
+      - name: banId
+        description: Identifier of the user who will be banned
+        in: path
+        schema:
+          $ref: "#/components/schemas/UserID" 
+        required: true
+      responses:
+        "204": 
+          description: "User successfully banned, he will no longer be able to visualize your profile"
+        "404":
+          description: User not found
+
+    delete:
+      tags: ["ban"]
+      summary: Unban a User
+      description: |- 
+        Given the id of the user who wants to unban another one (userId) and the
+        id of the user to unban (banId), this method allows the unban operation 
+        (only if the user was previously in the ban status), meaning that the 
+        ex-banned user will be able to re-visualize the user profile of 
+        the user who previously banned him
+      operationId: unbanUser
+      parameters:
+      - name: userId
+        description: Identifier of the user who wants to unban
+        in: path
+        schema:
+          $ref: "#/components/schemas/UserID" 
+        required: true
+      - name: banId
+        description: Identifier of the user who will be unbanned
+        in: path
+        schema:
+          $ref: "#/components/schemas/UserID" 
+        required: true
+      responses:
+        "204": 
+          description: "User successfully unbanned, he will be able to re-visualize your profile"
+        "403":
+          description: The user isn't banned
+        "404":
+          description: User not found
           
-        
-        
-        
 components:
   schemas:
     User:
@@ -347,7 +437,6 @@ components:
         minLength: 3
         maxLength: 16
       
-      
     Photo:
       description: This object represents a single Photo that can be uploaded by a User on WASAPhoto
       type: object
@@ -376,7 +465,6 @@ components:
           description: Number of comments that the Photo has
           type: integer
           example: 1
-          
           
     PhotoID:
       description: The unique identifier of the Photo
@@ -415,14 +503,6 @@ components:
           
         
         
-      
-      
-          
-          
-          
-          
-          
-          
       
       
           
