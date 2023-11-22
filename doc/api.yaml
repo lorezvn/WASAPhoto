@@ -5,6 +5,8 @@ info:
     This OpenAPI document describes the APIs required for the Project "WASAPhoto" 
     of the WASA exam of Sapienza University of Rome.
   version: 0.0.2
+servers:
+  - url: "http://localhost:3000"
 tags:
   - name: login
     description: Operations related to the login action
@@ -32,14 +34,10 @@ paths:
           application/json:
             schema:
               type: object
+              description: Object with the username property
               properties:
                 username:
-                    description: The username of the User
-                    type: string
-                    example: "Maria"
-                    pattern: 'ˆ.*?$'
-                    minLength: 3
-                    maxLength: 16
+                  $ref: "#/components/schemas/username"
         required: true
       responses:
         '201':
@@ -48,12 +46,12 @@ paths:
             application/json:
               schema:
                 type: object
+                description: Object that contains the user identifier returned
                 properties:
                   userId:
                     description: The unique identifier of the User
                     type: integer
                     example: 12345678
-                    readOnly: true
       
                     
   /users/{userId}/username:
@@ -74,14 +72,10 @@ paths:
           application/json:
             schema:
               type: object
+              description: Object with the username property
               properties:
                 username:
-                  description: The username of the User
-                  type: string
-                  example: "Maria"
-                  pattern: 'ˆ.*?$'
-                  minLength: 3
-                  maxLength: 16
+                  $ref: "#/components/schemas/username"
         required: true
       responses:
         "204":
@@ -109,6 +103,7 @@ paths:
             application/json:
               schema:
                 type: array
+                description: Array containing all the Photos of the Stream
                 items:
                   $ref: "#/components/schemas/Photo"
                 minItems: 0
@@ -131,8 +126,7 @@ paths:
         content:
           image/png:
             schema:
-              type: string
-              format: binary
+              $ref: "#/components/schemas/image"
         required: true
       responses:
         "201":
@@ -176,20 +170,8 @@ paths:
         users of WASAPhoto, this method allows the follow action
       operationId: followUser
       parameters:
-      - name: userId
-        description: Identifier of the user who wants to follow
-        in: path
-        schema:
-          type: integer
-        example: 12345678
-        required: true
-      - name: followId
-        description: Identifier of the user who will be followed
-        in: path
-        schema:
-          type: integer
-        example: 12345678
-        required: true
+      - $ref: "#/components/parameters/userIdParam"
+      - $ref: "#/components/parameters/followIdParam"
       responses:
         "204": 
           description: User successfully followed
@@ -208,20 +190,8 @@ paths:
         allows the unfollow action
       operationId: unfollowUser
       parameters:
-      - name: userId
-        description: Identifier of the user who wants to unfollow
-        in: path
-        schema:
-          type: integer
-        example: 12345678
-        required: true
-      - name: followId
-        description: Identifier of the user who will be unfollowed
-        in: path
-        schema:
-          type: integer
-        example: 12345678
-        required: true
+      - $ref: "#/components/parameters/userIdParam"
+      - $ref: "#/components/parameters/followIdParam"
       responses:
         "204": 
           description: User successfully unfollowed
@@ -310,13 +280,10 @@ paths:
           application/json:
             schema:
               type: object
+              description: Object that contains the message property
               properties:
                 message:
-                  type: string
-                  example: "This photo is amazing!"
-                  pattern: 'ˆ.*?$'
-                  minLength: 1
-                  maxLength: 2200
+                  $ref: "#/components/schemas/message"
         required: true
       responses:
         "201":
@@ -360,20 +327,8 @@ paths:
         the user who banned him
       operationId: banUser
       parameters:
-      - name: userId
-        description: Identifier of the user who wants to ban
-        in: path
-        schema:
-          type: integer
-        example: 12345678
-        required: true
-      - name: banId
-        description: Identifier of the user who will be banned
-        in: path
-        schema:
-          type: integer
-        example: 12345678
-        required: true
+      - $ref: "#/components/parameters/userIdParam"
+      - $ref: "#/components/parameters/banIdParam"
       responses:
         "204": 
           description: "User successfully banned, he will no longer be able to visualize your profile"
@@ -393,20 +348,8 @@ paths:
         the user who previously banned him
       operationId: unbanUser
       parameters:
-      - name: userId
-        description: Identifier of the user who wants to unban
-        in: path
-        schema:
-          type: integer
-        example: 12345678
-        required: true
-      - name: banId
-        description: Identifier of the user who will be unbanned
-        in: path
-        schema:
-          type: integer
-        example: 12345678
-        required: true
+      - $ref: "#/components/parameters/userIdParam"
+      - $ref: "#/components/parameters/banIdParam"
       responses:
         "204": 
           description: "User successfully unbanned, he will be able to re-visualize your profile"
@@ -433,6 +376,24 @@ components:
       schema:
         type: integer
       example: 12345678
+      
+    followIdParam:
+      name: followId
+      description: Identifier of the user who will be followed/unfollowed
+      in: path
+      schema:
+        type: integer
+      example: 12345678
+      required: true
+      
+    banIdParam:
+      name: banId
+      description: Identifier of the user who will be banned/unbanned
+      in: path
+      schema:
+        type: integer
+      example: 12345678
+      required: true
       
     photoIdParam:
       name: photoId
@@ -475,7 +436,7 @@ components:
           description: The username of the User
           type: string
           example: "Maria"
-          pattern: 'ˆ.*?$'
+          pattern: '^.*?$'
           minLength: 3
           maxLength: 16
         followers:
@@ -509,6 +470,14 @@ components:
             $ref: "#/components/schemas/Photo"
           minItems: 0
           maxItems: 1000
+          
+    username:
+      description: The username of the User
+      type: string
+      example: "Maria"
+      pattern: '^.*?$'
+      minLength: 3
+      maxLength: 16
       
     Photo:
       description: This object represents a single Photo that can be uploaded by a User on WASAPhoto
@@ -523,6 +492,8 @@ components:
           description: The image of the Photo 
           type: string
           format: binary
+          minLength: 1
+          maxLength: 999999
         date:
           description: Date that represents when the Photo was uploaded 
           type: string
@@ -551,6 +522,14 @@ components:
           type: integer
           example: 1
           
+    image:
+      description: The image of the Photo 
+      type: string
+      format: binary
+      minLength: 1
+      maxLength: 999999
+      
+          
     Comment:
       description: This object represents a single Comment that can be posted by a User 
         on a Photo uploaded on WASAPhoto
@@ -571,13 +550,23 @@ components:
           type: string
           format: date-time
           example: "2023-11-02T16:50:30Z"
+          minLength: 20
+          maxLength: 20
         message:
           description: The message of the Comment 
           type: string
           example: "This photo is amazing!"
-          pattern: 'ˆ.*?$'
+          pattern: '^.*?$'
           minLength: 1
           maxLength: 2200
+          
+    message:
+      description: The message of the Comment 
+      type: string
+      example: "This photo is amazing!"
+      pattern: '^.*?$'
+      minLength: 1
+      maxLength: 2200 
           
     Like:
       description: This object represents a single Like that a User can add onto a Photo
@@ -599,4 +588,6 @@ components:
           type: string
           format: date-time
           example: "2023-11-02T16:50:30Z"
+          minLength: 20
+          maxLength: 20
       
