@@ -37,7 +37,7 @@ paths:
               description: Object with the username property
               properties:
                 username:
-                  $ref: "#/components/schemas/username"
+                  $ref: "#/components/schemas/User/properties/username"
         required: true
       responses:
         '201':
@@ -48,13 +48,11 @@ paths:
                 type: object
                 description: Object that contains the user identifier returned
                 properties:
-                  userId:
-                    description: The unique identifier of the User
-                    type: integer
-                    example: 12345678
+                  userID:
+                    $ref: "#/components/schemas/User/properties/userID"
       
                     
-  /users/{userId}/username:
+  /users/{userID}/username:
     put:
       security:
         - bearerAuthentication: []
@@ -65,7 +63,7 @@ paths:
         the new username if the user exists
       operationId: setMyUserName
       parameters:
-        - $ref: "#/components/parameters/userIdParam"
+        - $ref: "#/components/parameters/userIDParam"
       requestBody:
         description: New username
         content:
@@ -75,7 +73,7 @@ paths:
               description: Object with the username property
               properties:
                 username:
-                  $ref: "#/components/schemas/username"
+                  $ref: "#/components/schemas/User/properties/username"
         required: true
       responses:
         "204":
@@ -85,7 +83,7 @@ paths:
         "404":
           description: User not found
           
-  /users/{userId}/photos/:
+  /users/{userID}/photos/:
     get:
       security:
         - bearerAuthentication: []
@@ -95,7 +93,7 @@ paths:
         Given the user id, returns the stream of photos
       operationId: getMyStream
       parameters:
-        - $ref: "#/components/parameters/userIdParam"
+        - $ref: "#/components/parameters/userIDParam"
       responses:
         "200":
           description: Stream of photos returned
@@ -120,13 +118,17 @@ paths:
         Takes an image and returns a new Photo
       operationId: uploadPhoto
       parameters:
-        - $ref: "#/components/parameters/userIdParam"
+        - $ref: "#/components/parameters/userIDParam"
       requestBody:
         description: Image to be uploaded
         content:
           image/png:
             schema:
-              $ref: "#/components/schemas/image"
+              type: object
+              description: Object with the image property
+              properties:
+                image:
+                  $ref: "#/components/schemas/Photo/properties/image"
         required: true
       responses:
         "201":
@@ -138,7 +140,7 @@ paths:
         "400":
           description: Invalid image
           
-  /users/{userId}/photos/{photoId}:
+  /users/{userID}/photos/{photoID}:
     delete:
       security:
         - bearerAuthentication: []
@@ -149,8 +151,8 @@ paths:
         photo itself, it deletes the photo from the stream of photos of the user
       operationId: deletePhoto
       parameters:
-        - $ref: "#/components/parameters/userIdParam"
-        - $ref: "#/components/parameters/photoIdParam"
+        - $ref: "#/components/parameters/userIDParam"
+        - $ref: "#/components/parameters/photoIDParam"
       responses:
         "204":
           description: Photo successfully removed
@@ -158,20 +160,20 @@ paths:
           description: User or Photo not found
       
           
-  /users/{userId}/follow/{followId}:
+  /users/{userID}/follow/{followID}:
     put:
       security:
         - bearerAuthentication: []
       tags: ["follow"]
       summary: Follow an existent user on WASAPhoto
       description: |-
-        Given the id of the user who wants to follow another one (userId) and the
-        id of the user who will be followed (followId), if they are actually 
+        Given the id of the user who wants to follow another one (userID) and the
+        id of the user who will be followed (followID), if they are actually 
         users of WASAPhoto, this method allows the follow action
       operationId: followUser
       parameters:
-      - $ref: "#/components/parameters/userIdParam"
-      - $ref: "#/components/parameters/followIdParam"
+      - $ref: "#/components/parameters/userIDParam"
+      - $ref: "#/components/parameters/followIDParam"
       responses:
         "204": 
           description: User successfully followed
@@ -184,14 +186,14 @@ paths:
       tags: ["follow"]
       summary: Unfollow an existent user on WASAPhoto
       description: |-
-        Given the id of the user who wants to unfollow another one (userId) and the
-        id of the user who will be unfollowed (followId), if they are actually 
+        Given the id of the user who wants to unfollow another one (userID) and the
+        id of the user who will be unfollowed (followID), if they are actually 
         users of WASAPhoto and the user follows the other one, this method 
         allows the unfollow action
       operationId: unfollowUser
       parameters:
-      - $ref: "#/components/parameters/userIdParam"
-      - $ref: "#/components/parameters/followIdParam"
+      - $ref: "#/components/parameters/userIDParam"
+      - $ref: "#/components/parameters/followIDParam"
       responses:
         "204": 
           description: User successfully unfollowed
@@ -200,7 +202,7 @@ paths:
         "404":
           description: User not found
   
-  /users/{userId}:
+  /users/{userID}/profile:
     get:
       security:
         - bearerAuthentication: []
@@ -210,19 +212,19 @@ paths:
         Given the user id, returns the user profile
       operationId: getUserProfile
       parameters:
-        - $ref: "#/components/parameters/userIdParam"
+        - $ref: "#/components/parameters/userIDParam"
       responses:
         "200":
           description: User profile returned
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                $ref: "#/components/schemas/UserProfile"
         "404":
           description: User not found
           
-  /photos/{photoId}/likes/:
-    post:
+  /photos/{photoID}/likes/{likeID}:
+    put:
       security:
         - bearerAuthentication: []
       tags: ["photos"]
@@ -231,7 +233,8 @@ paths:
         Given the photo id, it creates a new Like
       operationId: likePhoto
       parameters:
-        - $ref: "#/components/parameters/photoIdParam"
+        - $ref: "#/components/parameters/photoIDParam"
+        - $ref: "#/components/parameters/likeIDParam"
       responses:
         "201":
           description: Like succesfully added
@@ -242,7 +245,6 @@ paths:
         "404":
           description: Photo not found
           
-  /photos/{photoId}/likes/{likeId}:
     delete:
       security:
         - bearerAuthentication: []
@@ -253,8 +255,8 @@ paths:
         that corresponds to the one given
       operationId: unlikePhoto
       parameters:
-        - $ref: "#/components/parameters/photoIdParam"
-        - $ref: "#/components/parameters/likeIdParam"
+        - $ref: "#/components/parameters/photoIDParam"
+        - $ref: "#/components/parameters/likeIDParam"
       responses:
         "204":
           description: Removed successfully a like from the photo 
@@ -263,7 +265,7 @@ paths:
         "404":
           description: Photo not found
           
-  /photos/{photoId}/comments/:
+  /photos/{photoID}/comments/:
     post:
       security:
         - bearerAuthentication: []
@@ -273,7 +275,7 @@ paths:
         Given the photo id and a message, it creates a new Comment  
       operationId: commentPhoto
       parameters:
-        - $ref: "#/components/parameters/photoIdParam"
+        - $ref: "#/components/parameters/photoIDParam"
       requestBody:
         description: Message of the Comment 
         content:
@@ -283,7 +285,7 @@ paths:
               description: Object that contains the message property
               properties:
                 message:
-                  $ref: "#/components/schemas/message"
+                  $ref: "#/components/schemas/Comment/properties/message"
         required: true
       responses:
         "201":
@@ -295,7 +297,7 @@ paths:
         "404":
           description: Photo not found
           
-  /photos/{photoId}/comments/{commentId}:
+  /photos/{photoID}/comments/{commentID}:
     delete:
       security:
         - bearerAuthentication: []
@@ -306,29 +308,29 @@ paths:
         that corresponds to the one given
       operationId: uncommentPhoto
       parameters:
-        - $ref: "#/components/parameters/photoIdParam"
-        - $ref: "#/components/parameters/commentIdParam"
+        - $ref: "#/components/parameters/photoIDParam"
+        - $ref: "#/components/parameters/commentIDParam"
       responses:
         "204":
           description: Comment successfully removed
         "404":
           description: Photo or Comment not found
     
-  /users/{userId}/ban/{banId}:
+  /users/{userID}/ban/{banID}:
     put:
       security:
         - bearerAuthentication: []
       tags: ["ban"]
       summary: Ban a User
       description: |- 
-        Given the id of the user who wants to ban another one (userId) and the
-        id of the user to ban (banId), this method allows the ban operation, meaning
+        Given the id of the user who wants to ban another one (userID) and the
+        id of the user to ban (banID), this method allows the ban operation, meaning
         that the banned user will no longer be able to visualize the user profile of
         the user who banned him
       operationId: banUser
       parameters:
-      - $ref: "#/components/parameters/userIdParam"
-      - $ref: "#/components/parameters/banIdParam"
+      - $ref: "#/components/parameters/userIDParam"
+      - $ref: "#/components/parameters/banIDParam"
       responses:
         "204": 
           description: "User successfully banned, he will no longer be able to visualize your profile"
@@ -341,15 +343,15 @@ paths:
       tags: ["ban"]
       summary: Unban a User
       description: |- 
-        Given the id of the user who wants to unban another one (userId) and the
-        id of the user to unban (banId), this method allows the unban operation 
+        Given the id of the user who wants to unban another one (userID) and the
+        id of the user to unban (banID), this method allows the unban operation 
         (only if the user was previously in the ban status), meaning that the 
         ex-banned user will be able to re-visualize the user profile of 
         the user who previously banned him
       operationId: unbanUser
       parameters:
-      - $ref: "#/components/parameters/userIdParam"
-      - $ref: "#/components/parameters/banIdParam"
+      - $ref: "#/components/parameters/userIDParam"
+      - $ref: "#/components/parameters/banIDParam"
       responses:
         "204": 
           description: "User successfully unbanned, he will be able to re-visualize your profile"
@@ -368,8 +370,8 @@ components:
       scheme: bearer
       
   parameters:
-    userIdParam:
-      name: userId
+    userIDParam:
+      name: userID
       description: The unique identifier of the User
       in: path
       required: true
@@ -377,8 +379,8 @@ components:
         type: integer
       example: 12345678
       
-    followIdParam:
-      name: followId
+    followIDParam:
+      name: followID
       description: Identifier of the user who will be followed/unfollowed
       in: path
       schema:
@@ -386,8 +388,8 @@ components:
       example: 12345678
       required: true
       
-    banIdParam:
-      name: banId
+    banIDParam:
+      name: banID
       description: Identifier of the user who will be banned/unbanned
       in: path
       schema:
@@ -395,8 +397,8 @@ components:
       example: 12345678
       required: true
       
-    photoIdParam:
-      name: photoId
+    photoIDParam:
+      name: photoID
       description: The unique identifier of the Photo
       in: path
       required: true
@@ -404,8 +406,8 @@ components:
         type: integer
       example: 567
       
-    commentIdParam:
-      name: commentId
+    commentIDParam:
+      name: commentID
       description: The unique identifier of the Comment
       in: path
       required: true
@@ -413,21 +415,37 @@ components:
         type: integer
       example: 11111111
       
-    likeIdParam:
-      name: likeId
-      description: The unique identifier of the Like
+    likeIDParam:
+      name: likeID
+      description: The unique identifier of the User who added the Like
       in: path
       required: true
       schema:
-        type: integer
-      example: 202
+        $ref: "#/components/schemas/User/properties/userID"
     
   schemas:
     User:
       description: This object represents a single User of WASAPhoto
       type: object
       properties:
-        userId:
+        userID:
+          description: The unique identifier of the User
+          type: integer
+          example: 12345678
+          readOnly: true
+        username:
+          description: The username of the User
+          type: string
+          example: "Maria"
+          pattern: '^.*?$'
+          minLength: 3
+          maxLength: 16
+          
+    UserProfile:
+      description: This object represents the user profile of a User of WASAPhoto
+      type: object
+      properties:
+        userID:
           description: The unique identifier of the User
           type: integer
           example: 12345678
@@ -440,29 +458,19 @@ components:
           minLength: 3
           maxLength: 16
         followers:
-          description: List of all user id of users who follow the User
+          description: List of users who follow the User
           type: array
           items: 
-            type: integer
-            example: 12345678
+            $ref: "#/components/schemas/User"
           minItems: 0
           maxItems: 10000
-        numberOfFollowers:
-          description: Number of users who follow the User
-          type: integer
-          example: 1
         following:
-          description: List of all user id of users followed by the User
+          description: List of users followed by the User
           type: array
           items: 
-            type: integer
-            example: 12345678
+            $ref: "#/components/schemas/User"
           minItems: 0
           maxItems: 10000
-        numberOfFollowing:
-          description: Number of users followed by the User
-          type: integer
-          example: 1
         photos:
           description: Stream of Photos uploaded by the User
           type: array
@@ -470,23 +478,20 @@ components:
             $ref: "#/components/schemas/Photo"
           minItems: 0
           maxItems: 1000
-          
-    username:
-      description: The username of the User
-      type: string
-      example: "Maria"
-      pattern: '^.*?$'
-      minLength: 3
-      maxLength: 16
-      
+         
     Photo:
       description: This object represents a single Photo that can be uploaded by a User on WASAPhoto
       type: object
       properties:
-        photoId:
+        photoID:
           description: The unique identifier of the Photo
           type: integer
           example: 567
+          readOnly: true
+        userID:
+          description: The unique identifier of the User who uploaded the Photo
+          type: integer
+          example: 12345678
           readOnly: true
         image: 
           description: The image of the Photo 
@@ -506,10 +511,6 @@ components:
             $ref: "#/components/schemas/Like"
           minItems: 0
           maxItems: 10000
-        numberOflikes:
-          description: Number of likes that the Photo has
-          type: integer
-          example: 1
         comments:
           description: List of all comments posted on the Photo
           type: array
@@ -517,34 +518,27 @@ components:
             $ref: "#/components/schemas/Comment"
           minItems: 0
           maxItems: 10000
-        numberOfComments: 
-          description: Number of comments that the Photo has
-          type: integer
-          example: 1
-          
-    image:
-      description: The image of the Photo 
-      type: string
-      format: binary
-      minLength: 1
-      maxLength: 999999
-      
           
     Comment:
       description: This object represents a single Comment that can be posted by a User 
         on a Photo uploaded on WASAPhoto
       type: object
       properties:
-        commentId:
+        commentID:
           description: The unique identifier of the Comment
           type: integer
           example: 11111111
           readOnly: true
-        userId:
+        userID:
           description: The unique identifier of the User who posted the Comment
           type: integer
           example: 12345678
           readOnly: true
+        photoID:
+          description: The unique identifier of the Photo target
+          type: integer
+          example: 567
+          readOnly: true 
         date:
           description: Date that represents when the Comment was posted 
           type: string
@@ -560,29 +554,21 @@ components:
           minLength: 1
           maxLength: 2200
           
-    message:
-      description: The message of the Comment 
-      type: string
-      example: "This photo is amazing!"
-      pattern: '^.*?$'
-      minLength: 1
-      maxLength: 2200 
-          
     Like:
       description: This object represents a single Like that a User can add onto a Photo
         on WASAPhoto
       type: object
       properties:
-        likeId:
-          description: The unique identifier of the Like
+        userID:
+          description: The unique identifier of the User who added the Like
           type: integer
           example: 202
           readOnly: true
-        userId:
-          description: The unique identifier of the User who added the Like
+        photoID:
+          description: The unique identifier of the Photo target
           type: integer
-          example: 12345678
-          readOnly: true
+          example: 567
+          readOnly: true 
         date:
           description: Date that represents when the Like was added
           type: string
