@@ -7,8 +7,8 @@ import (
 	"strconv"
 )
 
-// Given the user id, returns the stream of photos
-func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+// Get user profile by user ID
+func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
 
@@ -22,7 +22,7 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 
 	userID, err := strconv.Atoi(ps.ByName("userID"))
 	if err != nil {
-		rt.baseLogger.WithError(err).Error("Error getting userID")
+		rt.baseLogger.WithError(err).Warning("Error getting userID")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -33,26 +33,20 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	if (userToken != userID) {
-		rt.baseLogger.Error("Access denied")
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
-
-	stream, err := rt.db.GetStream(userID)
+	userProfile, err := rt.db.GetUserProfile(userID)
 	if err != nil {
-		rt.baseLogger.WithError(err).Error("Error getting stream of photos")
+		rt.baseLogger.WithError(err).Error("Error getting user profile")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "    ")
-	if err := encoder.Encode(stream); err != nil {
+	if err := encoder.Encode(userProfile); err != nil {
 		rt.baseLogger.WithError(err).Error("Encoding JSON failed")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	rt.baseLogger.Info("Stream of photos returned")
+	rt.baseLogger.Info("User profile returned")
 }

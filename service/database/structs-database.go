@@ -26,8 +26,8 @@ type Comment struct {
 	CommentID int    `json:"commentID"`
 	UserID    int    `json:"userID"`
 	PhotoID   int    `json:"photoID"`
-	Date      string `json:"date"`
 	Message   string `json:"message"`
+	Date      string `json:"date"`
 }
 
 type Like struct {
