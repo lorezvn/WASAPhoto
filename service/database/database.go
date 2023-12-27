@@ -41,11 +41,23 @@ type AppDatabase interface {
 	GetName() (string, error)
 	SetName(name string) error
 
+	UserExists(userID int) bool
+	UsernameExists(username string) bool
+	PhotoExists(photoID int, photoAuthorID int) bool
+
 	CreateUser(username string) (int, error)
 	ChangeUsername(userID int, newUsername string) error
 	InsertPhoto(userID int, image []byte) (int, string, error)
+	DeletePhoto(photoID int) error
+	InsertComment(userID int, photoID int, message string) (int, string, error)
+	DeleteComment(commentID int) error
+	InsertLike(userID int, photoID int) (string, error)
+	DeleteLike(likeID int) error
 	FollowUser(userID int, followID int) error
+	UnfollowUser(userID int, followID int) error
 	GetStream(userID int) ([]Photo, error)
+	GetUserProfile(userID int) (UserProfile, error)
+
 	Ping() error
 }
 
@@ -80,8 +92,8 @@ func New(db *sql.DB) (AppDatabase, error) {
 						id INTEGER PRIMARY KEY AUTOINCREMENT,
 						userID INTEGER,
 						photoID INTEGER,
-						date TEXT,
 						message TEXT,
+						date TEXT,
 						FOREIGN KEY (userID) REFERENCES users(id)
 						FOREIGN KEY (photoID) REFERENCES photos(id)
 					);
