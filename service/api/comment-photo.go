@@ -7,8 +7,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// If the user does not exist, it will be created, and an identifier is returned.
-// If the user exists, the user identifier is returned.
+// Given the photo id and a message, it creates a new Comment
 func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")

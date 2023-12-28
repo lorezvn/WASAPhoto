@@ -16,7 +16,10 @@ func extractBearerToken(r *http.Request) int {
 		return -1
 	}
 
-	token, _ := strconv.Atoi(tokens[1])
+	token, err := strconv.Atoi(tokens[1])
+	if err != nil {
+		return -1
+	}
 	return token
 }
 

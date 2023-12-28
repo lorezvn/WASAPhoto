@@ -52,9 +52,11 @@ type AppDatabase interface {
 	InsertComment(userID int, photoID int, message string) (int, string, error)
 	DeleteComment(commentID int) error
 	InsertLike(userID int, photoID int) (string, error)
-	DeleteLike(likeID int) error
+	DeleteLike(userID int, photoID int) error
 	FollowUser(userID int, followID int) error
 	UnfollowUser(userID int, followID int) error
+	BanUser(userID int, banID int) error 
+	UnbanUser(userID int, banID int) error
 	GetStream(userID int) ([]Photo, error)
 	GetUserProfile(userID int) (UserProfile, error)
 
@@ -106,17 +108,17 @@ func New(db *sql.DB) (AppDatabase, error) {
 						FOREIGN KEY (photoID) REFERENCES photos(id)
 					);
 					CREATE TABLE IF NOT EXISTS follow (
-						id INTEGER, 
+						userID INTEGER, 
 						followID INTEGER,
-						PRIMARY KEY (id, followID),
-						FOREIGN KEY (id) REFERENCES users(id),
+						PRIMARY KEY (userID, followID),
+						FOREIGN KEY (userID) REFERENCES users(id),
 						FOREIGN KEY (followID) REFERENCES users(id)
 					);
 					CREATE TABLE IF NOT EXISTS ban (
-						id INTEGER, 
+						userID INTEGER, 
 						banID INTEGER,
-						PRIMARY KEY (id, banID),
-						FOREIGN KEY (id) REFERENCES users(id),
+						PRIMARY KEY (userID, banID),
+						FOREIGN KEY (userID) REFERENCES users(id),
 						FOREIGN KEY (banID) REFERENCES users(id)
 					);`
 		_, err = db.Exec(sqlStmt)

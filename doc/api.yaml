@@ -175,7 +175,7 @@ paths:
       summary: Delete a Photo uploaded on WASAPhoto
       description: |-
         Given the user id of the user that uploaded the photo and the photo id of the 
-        photo itself, it deletes the photo from the stream of photos of the user
+        photo itself, it deletes the photo from the photos uploaded by the user
       operationId: deletePhoto
       responses:
         "204":
@@ -275,7 +275,8 @@ paths:
       tags: ["photos"]
       summary: Like a photo
       description: |-
-        Given the photo id, it creates a new Like
+        Given the photo id, and the id of the User who wants to add a 
+        like to the Photo (likeID), it adds a like
       operationId: likePhoto
       responses:
         "201":
@@ -299,7 +300,7 @@ paths:
       tags: ["photos"]
       summary: Unlike a photo
       description: |-
-        Given the photo id and a like id, deletes the Like with the like id 
+        Given the photo id and the id of the User who liked the Photo (likeID), deletes the Like with the user id 
         that corresponds to the one given
       operationId: unlikePhoto
       responses:

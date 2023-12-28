@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -36,94 +37,32 @@ func (db *appdbimpl) InsertPhoto(userID int, image []byte) (int, string, error) 
 }
 
 func (db *appdbimpl) DeletePhoto(photoID int) error {
-	_, err := db.c.Exec("DELETE FROM photos WHERE id = ?", photoID)
-	_, err = db.c.Exec("DELETE FROM comments WHERE photoID = ?", photoID)
+
+	_, err := db.c.Exec("DELETE FROM comments WHERE photoID = ?", photoID)
+	if err != nil {
+		return err
+	}
+
 	_, err = db.c.Exec("DELETE FROM likes WHERE photoID = ?", photoID)
-	return err
-}
-
-func (db *appdbimpl) InsertComment(userID int, photoID int, message string) (int, string, error) {
-
-	date := time.Now().Format(time.RFC3339)
-
-	result, err := db.c.Exec("INSERT INTO comments (userID, photoID, message, date) VALUES (?,?,?,?)", userID, photoID, message, date)
 	if err != nil {
-		fmt.Println("DATABASE: Error inserting comment: ", err)
-		return 0, date, err
+		return err
 	}
 
-	commentID, err := result.LastInsertId()
+	result, err := db.c.Exec("DELETE FROM photos WHERE id = ?", photoID)
 	if err != nil {
-		fmt.Println("DATABASE: Error obtaining the last insert id: ", err)
-		return 0, date, err
+		return err
 	}
 
-	return int(commentID), date, nil
-}
-
-func (db *appdbimpl) DeleteComment(commentID int) (error) {
-	_, err := db.c.Exec("DELETE FROM comments WHERE id = ?", commentID)
-	return err
-}
-
-func (db *appdbimpl) InsertLike(userID int, photoID int) (string, error) {
-
-	date := time.Now().Format(time.RFC3339)
-
-	_, err := db.c.Exec("INSERT INTO likes (userID, photoID, date) VALUES (?,?,?)", userID, photoID, date)
+	rows, err := result.RowsAffected()
 	if err != nil {
-		fmt.Println("DATABASE: Error inserting like: ", err)
-		return date, err
+		return err
 	}
 
-	return date, nil
-}
-
-func (db *appdbimpl) DeleteLike(likeID int) (error) {
-	_, err := db.c.Exec("DELETE FROM likes WHERE id = ?", likeID)
-	return err
-}
-
-func (db *appdbimpl) GetComments(photoID int) ([]Comment, error) {
-
-	var comments []Comment
-	rows, err := db.c.Query("SELECT * FROM comments WHERE photoID = ?", photoID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var comment Comment
-		if err := rows.Scan(&comment.CommentID, &comment.UserID, &comment.PhotoID, &comment.Message, &comment.Date); err != nil {
-			return nil, err
-		}
-
-		comments = append(comments, comment)
+	if rows == 0 {
+		return errors.New("Photo not found")
 	}
 
-	return comments, nil
-}
-
-func (db *appdbimpl) GetLikes(photoID int) ([]Like, error) {
-
-	var likes []Like
-	rows, err := db.c.Query("SELECT * FROM likes WHERE photoID = ?", photoID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var like Like
-		if err := rows.Scan(&like.UserID, &like.PhotoID, &like.Date); err != nil {
-			return nil, err
-		}
-
-		likes = append(likes, like)
-	}
-
-	return likes, nil
+	return nil
 }
 
 func (db *appdbimpl) GetCompletePhotos(rows *sql.Rows) ([]Photo, error) {
@@ -148,7 +87,6 @@ func (db *appdbimpl) GetCompletePhotos(rows *sql.Rows) ([]Photo, error) {
 
 func (db *appdbimpl) GetUserPhotos(userID int) ([]Photo, error) {
 
-	// Query all photos from users followed by the given userID
 	query := `SELECT * 
 			  FROM photos 
 			  WHERE photos.userID = ? 
@@ -169,7 +107,7 @@ func (db *appdbimpl) GetStream(userID int) ([]Photo, error) {
 	// Query all photos from users followed by the given userID
 	query := `SELECT *
 			  FROM photos
-			  WHERE photos.userID IN (SELECT followID FROM follow WHERE id = ?)`
+			  WHERE photos.userID IN (SELECT followID FROM follow WHERE userID = ?)`
 
 	rows, err := db.c.Query(query, userID)
 	if err != nil {
@@ -180,5 +118,3 @@ func (db *appdbimpl) GetStream(userID int) ([]Photo, error) {
 
 	return db.GetCompletePhotos(rows)
 }
-
-
