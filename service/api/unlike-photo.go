@@ -61,6 +61,12 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
+	if rt.db.BanExists(photoAuthorID, userToken) {
+		rt.baseLogger.Error("This user was banned, impossible to perform the remove like request")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
 	if err := rt.db.DeleteLike(userID, photoID); err != nil {
 		if errors.Is(err, errors.New("Like not found")) {
 			rt.baseLogger.WithError(err).Error("Error removing like from DB")

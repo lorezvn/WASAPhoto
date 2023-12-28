@@ -54,6 +54,12 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
+	if rt.db.BanExists(photoAuthorID, userToken) {
+		rt.baseLogger.Error("This user was banned, impossible to perform the remove comment request")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
 	if err := rt.db.DeleteComment(commentID); err != nil {
 		if errors.Is(err, errors.New("Comment not found")) {
 			rt.baseLogger.WithError(err).Error("Error removing comment from DB")

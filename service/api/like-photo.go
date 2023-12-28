@@ -68,6 +68,12 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
+	if rt.db.BanExists(photoAuthorID, userToken) {
+		rt.baseLogger.Error("This user was banned, impossible to perform the like request")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
 	date, err := rt.db.InsertLike(userToken, photoID)
 	if err != nil {
 		rt.baseLogger.WithError(err).Error("Error inserting like into DB")

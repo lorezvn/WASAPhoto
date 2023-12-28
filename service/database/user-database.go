@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 )
 
 func (db *appdbimpl) GetUserIDByUsername(username string) (int, error) {
@@ -53,7 +52,6 @@ func (db *appdbimpl) CreateUser(username string) (int, error) {
 
 	userID, err := db.GetUserIDByUsername(username)
 	if err != nil {
-		fmt.Println("DATABASE: Error getting the id of the User by username: ", err)
 		return 0, err
 	}
 
@@ -65,13 +63,11 @@ func (db *appdbimpl) CreateUser(username string) (int, error) {
 	// Else create a new User and return the new identifier
 	result, err := db.c.Exec("INSERT INTO users (username) VALUES (?)", username)
 	if err != nil {
-		fmt.Println("DATABASE: Error inserting user: ", err)
 		return 0, err
 	}
 
 	newUserID, err := result.LastInsertId()
 	if err != nil {
-		fmt.Println("DATABASE: Error obtaining the last insert id: ", err)
 		return 0, err
 	}
 
@@ -88,7 +84,6 @@ func (db *appdbimpl) GetUserProfile(userID int) (UserProfile, error) {
 
 	err := db.c.QueryRow("SELECT username FROM users WHERE id = ?", userID).Scan(&username)
 	if err != nil {
-		fmt.Println("DATABASE: Error obtaining user: ", err)
 		return userProfile, err
 	}
 
@@ -96,19 +91,16 @@ func (db *appdbimpl) GetUserProfile(userID int) (UserProfile, error) {
 
 	userProfile.Photos, err = db.GetUserPhotos(userID)
 	if err != nil {
-		fmt.Println("DATABASE: Error obtaining user photos: ", err)
 		return userProfile, err
 	}
 
 	userProfile.Following, err = db.GetUserFollowing(userID)
 	if err != nil {
-		fmt.Println("DATABASE: Error obtaining user following: ", err)
 		return userProfile, err
 	}
 
 	userProfile.Followers, err = db.GetUserFollowers(userID)
 	if err != nil {
-		fmt.Println("DATABASE: Error obtaining user followers: ", err)
 		return userProfile, err
 	}
 

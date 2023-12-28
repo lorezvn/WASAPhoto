@@ -56,6 +56,12 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
+	if rt.db.BanExists(followID, userToken) {
+		rt.baseLogger.Error("This user was banned, impossible to perform the unfollow request")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
 	if err = rt.db.UnfollowUser(userToken, followID); err != nil {
 		if errors.Is(err, errors.New("Follow not found")) {
 			rt.baseLogger.WithError(err).Error("Error inserting follow into DB")

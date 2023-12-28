@@ -33,6 +33,12 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
+	if rt.db.BanExists(userID, userToken) {
+		rt.baseLogger.Error("This user was banned, impossible to visualize the user profile")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
 	userProfile, err := rt.db.GetUserProfile(userID)
 	if err != nil {
 		rt.baseLogger.WithError(err).Error("Error getting user profile")

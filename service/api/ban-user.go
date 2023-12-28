@@ -3,7 +3,6 @@ package api
 import (
 	"net/http"
 	"strconv"
-	"errors"
 	"github.com/julienschmidt/httprouter"
 )
 

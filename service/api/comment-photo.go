@@ -48,6 +48,12 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
+	if rt.db.BanExists(photoAuthorID, userToken) {
+		rt.baseLogger.Error("This user was banned, impossible to perform the comment request")
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
+
 	if err := json.NewDecoder(r.Body).Decode(&comment); err != nil {
 		rt.baseLogger.WithError(err).Error("Decoding JSON failed")
 		w.WriteHeader(http.StatusBadRequest)

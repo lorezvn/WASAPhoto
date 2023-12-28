@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"time"
 )
 
@@ -23,13 +22,11 @@ func (db *appdbimpl) InsertPhoto(userID int, image []byte) (int, string, error) 
 
 	result, err := db.c.Exec("INSERT INTO photos (userID, image, date) VALUES (?,?,?)", userID, image, date)
 	if err != nil {
-		fmt.Println("DATABASE: Error inserting image: ", err)
 		return 0, date, err
 	}
 
 	photoID, err := result.LastInsertId()
 	if err != nil {
-		fmt.Println("DATABASE: Error obtaining the last insert id: ", err)
 		return 0, date, err
 	}
 
@@ -72,10 +69,8 @@ func (db *appdbimpl) GetCompletePhotos(rows *sql.Rows) ([]Photo, error) {
 	for rows.Next() {
 		var photo Photo
 		if err := rows.Scan(&photo.PhotoID, &photo.UserID, &photo.Image, &photo.Date); err != nil {
-			fmt.Println(err)
 			return nil, err
 		}
-		photo.Image = nil
 		comments, _ := db.GetComments(photo.PhotoID)
 		likes, _ := db.GetLikes(photo.PhotoID)
 		photo.Comments = comments
@@ -94,7 +89,6 @@ func (db *appdbimpl) GetUserPhotos(userID int) ([]Photo, error) {
 
 	rows, err := db.c.Query(query, userID)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -111,7 +105,6 @@ func (db *appdbimpl) GetStream(userID int) ([]Photo, error) {
 
 	rows, err := db.c.Query(query, userID)
 	if err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	defer rows.Close()
