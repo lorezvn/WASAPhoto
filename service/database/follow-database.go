@@ -1,14 +1,13 @@
 package database
 
 import (
-	"fmt"
+	"errors"
 )
 
 func (db *appdbimpl) FollowUser(userID int, followID int) error {
 	
-	_, err := db.c.Exec("INSERT INTO follow (id, followID) VALUES (?, ?)", userID, followID)
+	_, err := db.c.Exec("INSERT INTO follow (userID, followID) VALUES (?, ?)", userID, followID)
 	if err != nil {
-		fmt.Println("DATABASE: Error while following user: ", err)
 		return err
 	}
 	return nil
@@ -16,10 +15,18 @@ func (db *appdbimpl) FollowUser(userID int, followID int) error {
 
 func (db *appdbimpl) UnfollowUser(userID int, followID int) error {
 	
-	_, err := db.c.Exec("DELETE FROM follow WHERE id = ? AND followID = ?", userID, followID)
+	result, err := db.c.Exec("DELETE FROM follow WHERE userID = ? AND followID = ?", userID, followID)
 	if err != nil {
-		fmt.Println("DATABASE: Error while following user: ", err)
 		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return errors.New("Follow not found")
 	}
 	return nil
 }
@@ -28,9 +35,9 @@ func (db *appdbimpl) GetUserFollowers(userID int) ([]User, error) {
 
 	var followers []User
 
-	query := `SELECT follow.id, users.username
+	query := `SELECT follow.userID, users.username
 			  FROM follow
-			  JOIN users ON users.id = follow.id
+			  JOIN users ON users.id = follow.userID
 			  WHERE follow.followID = ?`
 
 	rows, err := db.c.Query(query, userID)
@@ -61,7 +68,7 @@ func (db *appdbimpl) GetUserFollowing(userID int) ([]User, error) {
 	query := `SELECT follow.followID, users.username
 			  FROM follow
 			  JOIN users ON users.id = follow.followID
-			  WHERE follow.id = ?`
+			  WHERE follow.userID = ?`
 
 	rows, err := db.c.Query(query, userID)
 	if err != nil {

@@ -1,19 +1,18 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
+	"errors"
 	"github.com/julienschmidt/httprouter"
 )
 
-/* 
-	Given the photo id, and the id of the User who wants to add a 
-	like to the Photo (likeID), it adds a like
+/*
+	Given the photo id and the id of the User who liked the Photo (likeID), deletes the Like with the user id 
+	that corresponds to the one given
 */
-func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	w.Header().Set("content-type", "application/json")
+func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	userToken := extractBearerToken(r)
 
@@ -62,30 +61,18 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	if (userToken == photoAuthorID) {
-		rt.baseLogger.Error("Users can't like their own photos")
-		w.WriteHeader(http.StatusBadRequest)
-		return
+	if err := rt.db.DeleteLike(userID, photoID); err != nil {
+		if errors.Is(err, errors.New("Like not found")) {
+			rt.baseLogger.WithError(err).Error("Error removing like from DB")
+			w.WriteHeader(http.StatusNotFound)
+			return
+		} else {
+			rt.baseLogger.WithError(err).Error("Error removing like from DB")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 	}
 
-	date, err := rt.db.InsertLike(userToken, photoID)
-	if err != nil {
-		rt.baseLogger.WithError(err).Error("Error inserting like into DB")
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	like := Like{
-		UserID:   userToken,
-		PhotoID:  photoID,
-		Date:     date,
-	}
-
-	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(like); err != nil {
-		rt.baseLogger.WithError(err).Error("Encoding JSON failed")
-		w.WriteHeader(http.StatusBadRequest)
-	}
-
-	rt.baseLogger.Info("Like successfully added")
+	rt.baseLogger.Info("Removed successfully a like from the photo")
+	w.WriteHeader(http.StatusNoContent)
 }

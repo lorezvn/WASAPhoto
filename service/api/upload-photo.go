@@ -70,9 +70,12 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(photo); err != nil {
+	encoder := json.NewEncoder(w)
+	encoder.SetIndent("", "    ")
+	if err := encoder.Encode(photo); err != nil {
 		rt.baseLogger.WithError(err).Error("Encoding JSON failed")
 		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	rt.baseLogger.Info("Photo successfully uploaded")	
