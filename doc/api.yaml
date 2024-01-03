@@ -53,7 +53,7 @@ paths:
         "400":
           $ref: "#/components/responses/400BadRequest"
         "500":
-          $ref: "˚/components/responses/500InternalServerError"
+          $ref: "#/components/responses/500InternalServerError"
         
       
                     
