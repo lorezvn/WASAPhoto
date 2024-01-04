@@ -5,7 +5,7 @@ import (
 )
 
 func (db *appdbimpl) FollowUser(userID int, followID int) error {
-	
+
 	_, err := db.c.Exec("INSERT INTO follow (userID, followID) VALUES (?, ?)", userID, followID)
 	if err != nil {
 		return err
@@ -14,7 +14,7 @@ func (db *appdbimpl) FollowUser(userID int, followID int) error {
 }
 
 func (db *appdbimpl) UnfollowUser(userID int, followID int) error {
-	
+
 	result, err := db.c.Exec("DELETE FROM follow WHERE userID = ? AND followID = ?", userID, followID)
 	if err != nil {
 		return err
@@ -59,7 +59,6 @@ func (db *appdbimpl) GetUserFollowers(userID int) ([]User, error) {
 
 	return followers, nil
 }
-
 
 func (db *appdbimpl) GetUserFollowing(userID int) ([]User, error) {
 

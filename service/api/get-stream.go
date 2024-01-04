@@ -33,7 +33,7 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	if (userToken != userID) {
+	if userToken != userID {
 		rt.baseLogger.Error("Access denied")
 		w.WriteHeader(http.StatusForbidden)
 		return

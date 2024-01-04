@@ -1,9 +1,9 @@
 package api
 
 import (
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
-	"github.com/julienschmidt/httprouter"
 )
 
 /*
@@ -59,7 +59,7 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		rt.baseLogger.WithError(err).Error("Error inserting ban into DB")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
-		
+
 	}
 
 	rt.baseLogger.Info("User successfully banned, he will no longer be able to visualize your profile")

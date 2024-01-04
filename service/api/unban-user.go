@@ -1,17 +1,17 @@
 package api
 
 import (
-	"net/http"
-	"strconv"
 	"errors"
 	"github.com/julienschmidt/httprouter"
+	"net/http"
+	"strconv"
 )
 
 /*
 	Given the id of the user who wants to unban another one (userID) and the
-	id of the user to unban (banID), this method allows the unban operation 
-	(only if the user was previously in the ban status), meaning that the 
-	ex-banned user will be able to re-visualize the user profile of 
+	id of the user to unban (banID), this method allows the unban operation
+	(only if the user was previously in the ban status), meaning that the
+	ex-banned user will be able to re-visualize the user profile of
 	the user who previously banned him
 */
 

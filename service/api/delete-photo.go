@@ -1,15 +1,15 @@
 package api
 
 import (
-	"net/http"
-	"strconv"
 	"errors"
 	"github.com/julienschmidt/httprouter"
+	"net/http"
+	"strconv"
 )
 
 /*
-	Given the user id of the user that uploaded the photo and the photo id of the 
-	photo itself, it deletes the photo from the photos uploaded by the user
+Given the user id of the user that uploaded the photo and the photo id of the
+photo itself, it deletes the photo from the photos uploaded by the user
 */
 func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
@@ -41,7 +41,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	if (userToken != photoAuthorID) {
+	if userToken != photoAuthorID {
 		rt.baseLogger.Error("Access denied")
 		w.WriteHeader(http.StatusForbidden)
 		return
@@ -52,7 +52,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 			rt.baseLogger.WithError(err).Error("Error removing photo from DB")
 			w.WriteHeader(http.StatusNotFound)
 			return
-		} else  {
+		} else {
 			rt.baseLogger.WithError(err).Error("Error removing photo from DB")
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -60,5 +60,5 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	rt.baseLogger.Info("Photo successfully removed")
-	w.WriteHeader(http.StatusNoContent)	
+	w.WriteHeader(http.StatusNoContent)
 }

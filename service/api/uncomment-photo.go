@@ -1,15 +1,15 @@
 package api
 
 import (
-	"net/http"
-	"strconv"
 	"errors"
 	"github.com/julienschmidt/httprouter"
+	"net/http"
+	"strconv"
 )
 
 /*
-	Given the photo id and a comment id, deletes the Comment with the comment id 
-	that corresponds to the one given
+Given the photo id and a comment id, deletes the Comment with the comment id
+that corresponds to the one given
 */
 func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
@@ -41,7 +41,7 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	
+
 	if !rt.db.UserExists(userToken) || !rt.db.UserExists(photoAuthorID) {
 		rt.baseLogger.Error("User not found")
 		w.WriteHeader(http.StatusNotFound)
@@ -75,4 +75,3 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	rt.baseLogger.Info("Comment successfully removed")
 	w.WriteHeader(http.StatusNoContent)
 }
-

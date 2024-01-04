@@ -76,7 +76,7 @@ func (db *appdbimpl) CreateUser(username string) (int, error) {
 
 func (db *appdbimpl) GetUserProfile(userID int) (UserProfile, error) {
 
-	userProfile := UserProfile {
+	userProfile := UserProfile{
 		UserID: userID,
 	}
 

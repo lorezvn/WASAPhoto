@@ -2,13 +2,13 @@ package api
 
 import (
 	"net/http"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 func extractBearerToken(r *http.Request) int {
 
-	authHeader := r.Header.Get("Authorization") 
+	authHeader := r.Header.Get("Authorization")
 
 	tokens := strings.Split(authHeader, " ")
 
@@ -28,7 +28,7 @@ func validToken(token int) bool {
 }
 
 func validUsername(username string) bool {
-	return len(username) >= 3 && len(username) <= 16 
+	return len(username) >= 3 && len(username) <= 16
 }
 
 func validMessage(message string) bool {

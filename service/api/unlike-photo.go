@@ -1,14 +1,14 @@
 package api
 
 import (
-	"net/http"
-	"strconv"
 	"errors"
 	"github.com/julienschmidt/httprouter"
+	"net/http"
+	"strconv"
 )
 
 /*
-	Given the photo id and the id of the User who liked the Photo (likeID), deletes the Like with the user id 
+	Given the photo id and the id of the User who liked the Photo (likeID), deletes the Like with the user id
 	that corresponds to the one given
 */
 
@@ -43,7 +43,7 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	if !rt.db.UserExists(userToken) || !rt.db.UserExists(photoAuthorID) || !rt.db.UserExists(userID){
+	if !rt.db.UserExists(userToken) || !rt.db.UserExists(photoAuthorID) || !rt.db.UserExists(userID) {
 		rt.baseLogger.Error("User not found")
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -55,7 +55,7 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	if (userToken != userID) {
+	if userToken != userID {
 		rt.baseLogger.Error("Access denied")
 		w.WriteHeader(http.StatusForbidden)
 		return

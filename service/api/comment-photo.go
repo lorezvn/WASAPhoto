@@ -2,9 +2,9 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
-	"github.com/julienschmidt/httprouter"
 )
 
 // Given the photo id and a message, it creates a new Comment
@@ -76,11 +76,11 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	comment = Comment{
-		CommentID:  commentID,
-		UserID:     userToken,
-		PhotoID:    photoID,
-		Message:    message,
-		Date:       date,
+		CommentID: commentID,
+		UserID:    userToken,
+		PhotoID:   photoID,
+		Message:   message,
+		Date:      date,
 	}
 
 	w.WriteHeader(http.StatusCreated)
@@ -91,4 +91,3 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 
 	rt.baseLogger.Info("Comment successfully posted")
 }
-

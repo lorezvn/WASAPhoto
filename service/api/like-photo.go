@@ -2,13 +2,13 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
-	"github.com/julienschmidt/httprouter"
 )
 
-/* 
-	Given the photo id, and the id of the User who wants to add a 
+/*
+	Given the photo id, and the id of the User who wants to add a
 	like to the Photo (likeID), it adds a like
 */
 func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -44,7 +44,7 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	if !rt.db.UserExists(userToken) || !rt.db.UserExists(photoAuthorID) || !rt.db.UserExists(userID){
+	if !rt.db.UserExists(userToken) || !rt.db.UserExists(photoAuthorID) || !rt.db.UserExists(userID) {
 		rt.baseLogger.Error("User not found")
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -56,13 +56,13 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
-	if (userToken != userID) {
+	if userToken != userID {
 		rt.baseLogger.Error("Access denied")
 		w.WriteHeader(http.StatusForbidden)
 		return
 	}
 
-	if (userToken == photoAuthorID) {
+	if userToken == photoAuthorID {
 		rt.baseLogger.Error("Users can't like their own photos")
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -82,9 +82,9 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	like := Like{
-		UserID:   userToken,
-		PhotoID:  photoID,
-		Date:     date,
+		UserID:  userToken,
+		PhotoID: photoID,
+		Date:    date,
 	}
 
 	w.WriteHeader(http.StatusCreated)

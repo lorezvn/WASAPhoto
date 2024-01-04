@@ -1,16 +1,16 @@
 package api
 
 import (
-	"net/http"
-	"strconv"
 	"errors"
 	"github.com/julienschmidt/httprouter"
+	"net/http"
+	"strconv"
 )
 
 /*
 	Given the id of the user who wants to unfollow another one (userID) and the
-	id of the user who will be unfollowed (followID), if they are actually 
-	users of WASAPhoto and the user follows the other one, this method 
+	id of the user who will be unfollowed (followID), if they are actually
+	users of WASAPhoto and the user follows the other one, this method
 	allows the unfollow action
 */
 

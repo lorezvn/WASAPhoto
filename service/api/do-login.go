@@ -7,8 +7,8 @@ import (
 )
 
 /*
-	If the user does not exist, it will be created, and an identifier is returned.
-	If the user exists, the user identifier is returned.
+If the user does not exist, it will be created, and an identifier is returned.
+If the user exists, the user identifier is returned.
 */
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
@@ -31,7 +31,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 
 	userID, _ := rt.db.CreateUser(username)
-	
+
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(userID); err != nil {
 		rt.baseLogger.WithError(err).Error("Encoding JSON failed")

@@ -2,10 +2,10 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/julienschmidt/httprouter"
 	"io"
 	"net/http"
 	"strconv"
-	"github.com/julienschmidt/httprouter"
 )
 
 // Takes an image and returns a new Photo
@@ -34,7 +34,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	if (userToken != photoAuthorID) {
+	if userToken != photoAuthorID {
 		rt.baseLogger.Error("Access denied")
 		w.WriteHeader(http.StatusForbidden)
 		return
@@ -78,5 +78,5 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	rt.baseLogger.Info("Photo successfully uploaded")	
+	rt.baseLogger.Info("Photo successfully uploaded")
 }

@@ -56,7 +56,7 @@ type AppDatabase interface {
 	DeleteLike(userID int, photoID int) error
 	FollowUser(userID int, followID int) error
 	UnfollowUser(userID int, followID int) error
-	BanUser(userID int, banID int) error 
+	BanUser(userID int, banID int) error
 	UnbanUser(userID int, banID int) error
 	GetStream(userID int) ([]Photo, error)
 	GetUserProfile(userID int) (UserProfile, error)
