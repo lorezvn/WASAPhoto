@@ -495,9 +495,6 @@ components:
     400BadRequest:
       description: The request is invalid or incorrect
       
-    401Unauthorized:
-      description: Access is denied. Authentication credentials are missing or incorrect
-      
     403Forbidden:
       description: Access to the requested resource is forbidden. The authenticated user lacks the necessary permissions
       
@@ -661,4 +658,3 @@ components:
           example: "2023-11-02T16:50:30Z"
           minLength: 20
           maxLength: 20
-      
