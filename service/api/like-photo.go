@@ -8,8 +8,8 @@ import (
 )
 
 /*
-	Given the photo id, and the id of the User who wants to add a
-	like to the Photo (likeID), it adds a like
+Given the photo id, and the id of the User who wants to add a
+like to the Photo (likeID), it adds a like
 */
 func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 

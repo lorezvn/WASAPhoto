@@ -77,6 +77,12 @@ func (db *appdbimpl) GetCompletePhotos(rows *sql.Rows) ([]Photo, error) {
 		photo.Likes = likes
 		stream = append(stream, photo)
 	}
+
+	// Check errors during iteration
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
 	return stream, nil
 }
 

@@ -57,6 +57,11 @@ func (db *appdbimpl) GetUserFollowers(userID int) ([]User, error) {
 		followers = append(followers, user)
 	}
 
+	// Check errors during iteration
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
 	return followers, nil
 }
 
@@ -84,6 +89,11 @@ func (db *appdbimpl) GetUserFollowing(userID int) ([]User, error) {
 		}
 
 		following = append(following, user)
+	}
+
+	// Check errors during iteration
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
 	return following, nil

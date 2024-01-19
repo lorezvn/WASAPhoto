@@ -8,8 +8,8 @@ import (
 )
 
 /*
-	    Given the user id of the user who wants to set a new username, it sets the
-		the new username if the user exists
+Given the user id of the user who wants to set a new username, it sets the
+the new username if the user exists
 */
 func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 

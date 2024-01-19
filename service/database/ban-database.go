@@ -8,6 +8,7 @@ func (db *appdbimpl) BanExists(userID int, banID int) bool {
 
 	var id int
 	err := db.c.QueryRow("SELECT userID FROM ban WHERE userID = ? AND banID = ?", userID, banID).Scan(&id)
+
 	if err != nil {
 		return false
 	}
