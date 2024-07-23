@@ -55,8 +55,6 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
         
-      
-                    
   /users/{userID}/username:
     parameters:
       - $ref: "#/components/parameters/userIDParam"
@@ -238,6 +236,38 @@ paths:
           $ref: "#/components/responses/404NotFound" 
         "500":
           $ref: "#/components/responses/500InternalServerError"
+          
+  /users:
+    parameters:
+      - $ref: "#/components/parameters/usernameQueryParam"
+    get:
+      security:
+        - bearerAuthentication: []
+      tags: ["user-profile"]
+      summary: Search users by username
+      description: |-
+        Given a username, this method returns a list of users whose usernames start
+        with the username given
+      operationId: searchUser
+      responses:
+        "200":
+          description: List of users matching the username
+          content:
+            application/json:
+              schema:
+                type: array
+                description: Array containing all the Users
+                items:
+                  $ref: "#/components/schemas/User"
+                minItems: 0
+                maxItems: 100
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "404":
+          $ref: "#/components/responses/404NotFound" 
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+        
   
   /users/{userID}/profile:
     parameters:
@@ -489,6 +519,14 @@ components:
       required: true
       schema:
         $ref: "#/components/schemas/User/properties/userID"
+        
+    usernameQueryParam:
+      name: username
+      description: The username to search for
+      in: query
+      required: true
+      schema:
+        $ref: "#/components/schemas/User/properties/username"
         
   responses:
   

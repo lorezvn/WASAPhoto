@@ -48,6 +48,7 @@ type AppDatabase interface {
 
 	CreateUser(username string) (int, error)
 	ChangeUsername(userID int, newUsername string) error
+	SearchUsers(username string) ([]User, error)
 	InsertPhoto(userID int, image []byte) (int, string, error)
 	DeletePhoto(photoID int) error
 	InsertComment(userID int, photoID int, message string) (int, string, error)

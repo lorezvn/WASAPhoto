@@ -2,9 +2,10 @@ package api
 
 import (
 	"errors"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 /*
@@ -58,7 +59,7 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	if err = rt.db.UnbanUser(userToken, banID); err != nil {
-		if errors.Is(err, errors.New("Ban not found")) {
+		if errors.Is(err, errors.New("ban not found")) {
 			rt.baseLogger.WithError(err).Error("Error inserting ban into DB")
 			w.WriteHeader(http.StatusNotFound)
 			return

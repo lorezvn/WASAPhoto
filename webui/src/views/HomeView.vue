@@ -1,27 +1,36 @@
+
 <script>
 export default {
 	data: function() {
 		return {
 			errormsg: null,
 			loading: false,
-			some_data: null,
+			stream: [],
 		}
 	},
 	methods: {
-		async refresh() {
-			this.loading = true;
+		async getStream() {
+			// this.loading = true;
 			this.errormsg = null;
 			try {
-				let response = await this.$axios.get("/");
-				this.some_data = response.data;
+				let userID = localStorage.getItem('token');
+				let response = await this.$axios.get(`/users/${userID}/stream`);
+				this.stream = response.data;
+
 			} catch (e) {
 				this.errormsg = e.toString();
 			}
-			this.loading = false;
+			// this.loading = false;
+		},
+
+		formatDate(inputDate) {
+			const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric'};
+  			const formattedDate = new Date(inputDate).toLocaleDateString('en-US', options);
+  			return formattedDate;
 		},
 	},
-	mounted() {
-		this.refresh()
+	async mounted() {
+		await this.getStream()
 	}
 }
 </script>
@@ -30,27 +39,29 @@ export default {
 	<div>
 		<div
 			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<h1 class="h2">Home page</h1>
-			<div class="btn-toolbar mb-2 mb-md-0">
-				<div class="btn-group me-2">
-					<button type="button" class="btn btn-sm btn-outline-secondary" @click="refresh">
-						Refresh
-					</button>
-					<button type="button" class="btn btn-sm btn-outline-secondary" @click="exportList">
-						Export
-					</button>
-				</div>
-				<div class="btn-group me-2">
-					<button type="button" class="btn btn-sm btn-outline-primary" @click="newItem">
-						New
-					</button>
-				</div>
-			</div>
+			<h1 class="h2">Home</h1>
 		</div>
 
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+
+		<div v-if="stream.length > 0">
+			<h5>Photos posted by the users you follow </h5>
+			<ul class="photo-list">
+				<li v-for="photo in stream">
+					Posted by: {{ photo.userID }}
+					<div class="photo-container">
+						<img :src="'data:image/jpeg;base64,'+photo.image">
+						{{ formatDate(photo.date) }}
+					</div>
+				</li>
+			</ul>
+		</div>
+		<div v-else>
+			<h5>Your feed is empty! Follow someone!</h5>
+		</div>
 	</div>
 </template>
 
 <style>
+
 </style>

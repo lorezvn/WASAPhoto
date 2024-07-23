@@ -18,14 +18,46 @@ func (db *appdbimpl) GetUserIDByUsername(username string) (int, error) {
 	return userID, nil
 }
 
+func (db *appdbimpl) SearchUsers(username string) ([]User, error) {
+
+	var users []User
+
+	query := `SELECT * FROM users WHERE username LIKE ?`
+
+	rows, err := db.c.Query(query, username+"%")
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+
+		var user User
+		if err := rows.Scan(&user.UserID, &user.Username); err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	// Check errors during iteration
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if len(users) == 0 {
+		return []User{}, nil
+	}
+
+	return users, nil
+}
+
 func (db *appdbimpl) UserExists(userID int) bool {
 
 	var id int
 	err := db.c.QueryRow("SELECT id FROM users WHERE id = ?", userID).Scan(&id)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func (db *appdbimpl) UsernameExists(username string) bool {

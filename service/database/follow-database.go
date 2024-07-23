@@ -26,7 +26,7 @@ func (db *appdbimpl) UnfollowUser(userID int, followID int) error {
 	}
 
 	if rows == 0 {
-		return errors.New("Follow not found")
+		return errors.New("follow not found")
 	}
 	return nil
 }
@@ -62,6 +62,10 @@ func (db *appdbimpl) GetUserFollowers(userID int) ([]User, error) {
 		return nil, err
 	}
 
+	if len(followers) == 0 {
+		return []User{}, nil
+	}
+
 	return followers, nil
 }
 
@@ -94,6 +98,10 @@ func (db *appdbimpl) GetUserFollowing(userID int) ([]User, error) {
 	// Check errors during iteration
 	if err := rows.Err(); err != nil {
 		return nil, err
+	}
+
+	if len(following) == 0 {
+		return []User{}, nil
 	}
 
 	return following, nil

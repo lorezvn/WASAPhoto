@@ -2,9 +2,10 @@ package api
 
 import (
 	"errors"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 /*
@@ -63,7 +64,7 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	if err = rt.db.UnfollowUser(userToken, followID); err != nil {
-		if errors.Is(err, errors.New("Follow not found")) {
+		if errors.Is(err, errors.New("follow not found")) {
 			rt.baseLogger.WithError(err).Error("Error inserting follow into DB")
 			w.WriteHeader(http.StatusNotFound)
 			return

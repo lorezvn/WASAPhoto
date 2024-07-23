@@ -34,7 +34,7 @@ func (db *appdbimpl) DeleteComment(commentID int) error {
 	}
 
 	if rows == 0 {
-		return errors.New("Comment not found")
+		return errors.New("comment not found")
 	}
 
 	return nil
@@ -61,6 +61,10 @@ func (db *appdbimpl) GetComments(photoID int) ([]Comment, error) {
 	// Check errors during iteration
 	if err := rows.Err(); err != nil {
 		return nil, err
+	}
+
+	if len(comments) == 0 {
+		return []Comment{}, nil
 	}
 
 	return comments, nil

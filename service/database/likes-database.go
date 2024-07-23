@@ -29,7 +29,7 @@ func (db *appdbimpl) DeleteLike(userID int, photoID int) error {
 	}
 
 	if rows == 0 {
-		return errors.New("Like not found")
+		return errors.New("like not found")
 	}
 
 	return nil
@@ -56,6 +56,10 @@ func (db *appdbimpl) GetLikes(photoID int) ([]Like, error) {
 	// Check errors during iteration
 	if err := rows.Err(); err != nil {
 		return nil, err
+	}
+
+	if len(likes) == 0 {
+		return []Like{}, nil
 	}
 
 	return likes, nil

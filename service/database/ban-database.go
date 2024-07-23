@@ -9,10 +9,7 @@ func (db *appdbimpl) BanExists(userID int, banID int) bool {
 	var id int
 	err := db.c.QueryRow("SELECT userID FROM ban WHERE userID = ? AND banID = ?", userID, banID).Scan(&id)
 
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func (db *appdbimpl) BanUser(userID int, banID int) error {
@@ -52,7 +49,7 @@ func (db *appdbimpl) UnbanUser(userID int, banID int) error {
 	}
 
 	if rows == 0 {
-		return errors.New("Ban not found")
+		return errors.New("ban not found")
 	}
 	return nil
 }

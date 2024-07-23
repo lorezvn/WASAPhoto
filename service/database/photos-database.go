@@ -10,10 +10,7 @@ func (db *appdbimpl) PhotoExists(photoID int, photoAuthorID int) bool {
 
 	var id int
 	err := db.c.QueryRow("SELECT id FROM photos WHERE id = ? AND userID = ?", photoID, photoAuthorID).Scan(&id)
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func (db *appdbimpl) InsertPhoto(userID int, image []byte) (int, string, error) {
@@ -56,7 +53,7 @@ func (db *appdbimpl) DeletePhoto(photoID int) error {
 	}
 
 	if rows == 0 {
-		return errors.New("Photo not found")
+		return errors.New("photo not found")
 	}
 
 	return nil
@@ -71,16 +68,18 @@ func (db *appdbimpl) GetCompletePhotos(rows *sql.Rows) ([]Photo, error) {
 		if err := rows.Scan(&photo.PhotoID, &photo.UserID, &photo.Image, &photo.Date); err != nil {
 			return nil, err
 		}
-		comments, _ := db.GetComments(photo.PhotoID)
-		likes, _ := db.GetLikes(photo.PhotoID)
-		photo.Comments = comments
-		photo.Likes = likes
+		photo.Comments, _ = db.GetComments(photo.PhotoID)
+		photo.Likes, _ = db.GetLikes(photo.PhotoID)
 		stream = append(stream, photo)
 	}
 
 	// Check errors during iteration
 	if err := rows.Err(); err != nil {
 		return nil, err
+	}
+
+	if len(stream) == 0 {
+		return []Photo{}, nil
 	}
 
 	return stream, nil
@@ -107,7 +106,8 @@ func (db *appdbimpl) GetStream(userID int) ([]Photo, error) {
 	// Query all photos from users followed by the given userID
 	query := `SELECT *
 			  FROM photos
-			  WHERE photos.userID IN (SELECT followID FROM follow WHERE userID = ?)`
+			  WHERE photos.userID IN (SELECT followID FROM follow WHERE userID = ?)
+			  ORDER BY date DESC`
 
 	rows, err := db.c.Query(query, userID)
 	if err != nil {

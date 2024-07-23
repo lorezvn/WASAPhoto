@@ -4,53 +4,64 @@ export default {
 		return {
 			errormsg: null,
 			loading: false,
-			some_data: null,
+            username: "",
+			userID: null,
 		}
 	},
 	methods: {
-		async refresh() {
-			this.loading = true;
+		async login() {
+			// this.loading = true;
 			this.errormsg = null;
 			try {
-				let response = await this.$axios.get("/");
-				this.some_data = response.data;
+				let response = await this.$axios.post("/session", {
+                    username: this.username,
+                });
+				this.userID = response.data;
+                localStorage.setItem('token', this.userID);
+                this.$router.replace("/home");
+
 			} catch (e) {
 				this.errormsg = e.toString();
 			}
-			this.loading = false;
+			// this.loading = false;
 		},
 	},
-	mounted() {
-		this.refresh()
-	}
 }
 </script>
 
 <template>
-	<div>
-		<div
-			class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<h1 class="h2">Login</h1>
-			<div class="btn-toolbar mb-2 mb-md-0">
-				<div class="btn-group me-2">
-					<button type="button" class="btn btn-sm btn-outline-secondary" @click="refresh">
-						Refresh
-					</button>
-					<button type="button" class="btn btn-sm btn-outline-secondary" @click="exportList">
-						Export
-					</button>
-				</div>
-				<div class="btn-group me-2">
-					<button type="button" class="btn btn-sm btn-outline-primary" @click="newItem">
-						New
-					</button>
-				</div>
-			</div>
-		</div>
-
-		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Login</h1>
 	</div>
+
+    <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+
+    <form @submit.prevent="login">
+        <label for="username">Insert your username</label>
+        <input type="text" v-model="username"/>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form> 
+    
 </template>
 
 <style>
+
+	body {
+        font-family: 'Arial', sans-serif;
+        background-color: #f8f9fa;
+        color: #000000;
+    }
+
+	label {
+		margin-right: 5px;
+	}
+
+    .btn-primary {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+		margin-left: 5px;
+        border-radius: 3px;
+    }
+	
 </style>
