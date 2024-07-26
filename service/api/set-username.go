@@ -2,9 +2,10 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 /*
@@ -52,13 +53,15 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 
 	if !validUsername(newUsername) {
 		rt.baseLogger.Error("Invalid username")
-		w.WriteHeader(http.StatusBadRequest)
+		writeJSONResponse(w, http.StatusBadRequest, "Invalid username: a valid username should have 3-16 characters")
+		// w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if rt.db.UsernameExists(newUsername) {
 		rt.baseLogger.Error("Username chosen already exists")
-		w.WriteHeader(http.StatusConflict)
+		writeJSONResponse(w, http.StatusConflict, "Username chosen already exists")
+		// w.WriteHeader(http.StatusConflict)
 		return
 	}
 

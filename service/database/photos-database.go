@@ -13,11 +13,11 @@ func (db *appdbimpl) PhotoExists(photoID int, photoAuthorID int) bool {
 	return err == nil
 }
 
-func (db *appdbimpl) InsertPhoto(userID int, image []byte) (int, string, error) {
+func (db *appdbimpl) InsertPhoto(userID int, username string, image []byte) (int, string, error) {
 
 	date := time.Now().Format(time.RFC3339)
 
-	result, err := db.c.Exec("INSERT INTO photos (userID, image, date) VALUES (?,?,?)", userID, image, date)
+	result, err := db.c.Exec("INSERT INTO photos (userID, username, image, date) VALUES (?,?,?,?)", userID, username, image, date)
 	if err != nil {
 		return 0, date, err
 	}
@@ -65,7 +65,7 @@ func (db *appdbimpl) GetCompletePhotos(rows *sql.Rows) ([]Photo, error) {
 
 	for rows.Next() {
 		var photo Photo
-		if err := rows.Scan(&photo.PhotoID, &photo.UserID, &photo.Image, &photo.Date); err != nil {
+		if err := rows.Scan(&photo.PhotoID, &photo.UserID, &photo.Username, &photo.Image, &photo.Date); err != nil {
 			return nil, err
 		}
 		photo.Comments, _ = db.GetComments(photo.PhotoID)

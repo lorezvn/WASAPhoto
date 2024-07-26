@@ -48,7 +48,7 @@ export default {
 			<h5>Photos posted by the users you follow </h5>
 			<ul class="photo-list">
 				<li v-for="photo in stream">
-					Posted by: {{ photo.userID }}
+					Posted by: {{ photo.username }}
 					<div class="photo-container">
 						<img :src="'data:image/jpeg;base64,'+photo.image">
 						{{ formatDate(photo.date) }}

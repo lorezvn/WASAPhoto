@@ -20,8 +20,14 @@ export default {
   	},
 	methods: {
 		async getUserProfile() {
+
+			if (this.userID === undefined){
+                return
+            }
+
 			// this.loading = true;
 			this.errormsg = null;
+			
 			try {
 				let response = await this.$axios.get(`/users/${this.userID}/profile`);
 
@@ -36,16 +42,30 @@ export default {
 			}
 			//this.loading = false;
 		},
+		goToSettings() {
+			this.$router.push("/users/"+this.userID+"/profile/settings")
+		},
 		formatDate(inputDate) {
 			const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric'};
   			const formattedDate = new Date(inputDate).toLocaleDateString('en-US', options);
   			return formattedDate;
 		}
 	},
-	async mounted() {
+	watch: {
+        '$route.params.userID': {
+            handler(newUserID) {
+                if (newUserID !== this.userID) {
+                    this.userID = newUserID;
+                    this.getUserProfile();
+                }
+            },
+        }
+    },
+
+    async mounted() {
 		this.userID = this.$route.params.userID;
-		await this.getUserProfile()
-	}
+        await this.getUserProfile();
+    }
 }
 </script>
 
@@ -55,8 +75,9 @@ export default {
 			<h1 class="h2">{{ username }}</h1>
 			<div v-if="owner" class="btn-toolbar mb-2 mb-md-0">
 				<div class="btn-group me-2">
-					<button type="button" class="btn btn-sm btn-outline-secondary" @click="">
-						Update username
+					<button type="button" class="btn btn-sm btn-outline-secondary" @click="goToSettings">
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#settings"/></svg>
+						Settings
 					</button>
 				</div>
 			</div>
@@ -117,13 +138,13 @@ export default {
 	}
 
 	.follow-number {
-		font-size: 25px;
+		font-size: 23px;
 		font-weight: bold;
 		text-align: center;
 	}
 
 	.follow-text {
-		font-size: 20px;
+		font-size: 15px;
 		color:gray;
 		text-align: center;
 	}

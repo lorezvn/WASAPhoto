@@ -37,7 +37,7 @@ func (rt *_router) searchUsers(w http.ResponseWriter, r *http.Request, ps httpro
 
 	users, err := rt.db.SearchUsers(usernameQuery)
 	if err != nil {
-		rt.baseLogger.WithError(err).Error("Error getting stream of photos")
+		rt.baseLogger.WithError(err).Error("Error searching users")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
