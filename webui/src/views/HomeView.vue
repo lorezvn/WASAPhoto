@@ -46,12 +46,12 @@ export default {
 
 		<div v-if="stream.length > 0">
 			<h5>Photos posted by the users you follow </h5>
-			<ul class="photo-list">
+			<ul style="margin-top: 20px;" class="photo-list">
 				<li v-for="photo in stream">
-					Posted by: {{ photo.username }}
+					<p class="photo-owner"> Posted by: {{ photo.username }} </p>
 					<div class="photo-container">
 						<img :src="'data:image/jpeg;base64,'+photo.image">
-						{{ formatDate(photo.date) }}
+						<p class="photo-date"> {{ formatDate(photo.date) }} </p>
 					</div>
 				</li>
 			</ul>
@@ -63,5 +63,15 @@ export default {
 </template>
 
 <style>
-
+	.photo-owner {
+		position: absolute;
+		top: 8px; /* Distanza dal bordo inferiore */
+		left: 8px; /* Distanza dal bordo destro */
+		background-color: rgba(255, 255, 255, 0.7); /* Colore di sfondo semitrasparente per migliorare la leggibilità */
+		padding: 4px 8px; /* Spazio interno per migliorare l'aspetto */
+		border-radius: 4px; /* Angoli arrotondati per il box della data */
+		font-size: 14px; /* Dimensione del testo */
+		color: #333; /* Colore del testo */
+		font-family: Arial, Helvetica, sans-serif;
+	}
 </style>

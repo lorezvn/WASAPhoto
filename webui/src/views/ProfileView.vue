@@ -10,7 +10,8 @@ export default {
 			numberOfPhotos: 0,
 			followers: 0,
 			following: 0,
-			userID: null
+			userID: null,
+			isFollowing: false
 		}
 	},
 	computed: {
@@ -30,17 +31,38 @@ export default {
 			
 			try {
 				let response = await this.$axios.get(`/users/${this.userID}/profile`);
-
 				this.username = response.data.username;
 				this.photos = response.data.photos;
 				this.numberOfPhotos = response.data.photos.length;
-				this.followers = response.data.followers.length;
-				this.following = response.data.following.length;
+				this.followers = response.data.followers;
+				this.following = response.data.following;
+				this.isFollowing = this.followers.some(follower => follower.userID == localStorage.getItem('token'));
 
 			} catch (e) {
 				this.errormsg = e.toString();
 			}
 			//this.loading = false;
+		},
+		async deletePhoto(photoID) {
+			try {
+				await this.$axios.delete(`/users/${localStorage.getItem('token')}/photos/${photoID}`);
+				this.getUserProfile();
+			} catch(e) {
+				this.errormsg = e.toString();
+			}
+		},
+		async followUser() {
+			try {
+				if (!this.isFollowing) {
+					await this.$axios.put(`/users/${localStorage.getItem('token')}/follow/${this.userID}`);
+				} else {
+					await this.$axios.delete(`/users/${localStorage.getItem('token')}/follow/${this.userID}`);
+				}
+				this.isFollowing = !this.isFollowing
+				this.getUserProfile();
+			} catch(e) {
+				this.errormsg = e.toString();
+			}
 		},
 		goToSettings() {
 			this.$router.push("/users/"+this.userID+"/profile/settings")
@@ -85,41 +107,68 @@ export default {
 
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 		
-		<div class="d-flex flex-md-nowrap align-items-center">
+		<div class="d-flex flex-md-nowrap align-items-left">
 			<div id="counter">
 				<div class="follow-number">
 					{{ numberOfPhotos }}
 				</div>
 				<div class="follow-text">
-					Photos
+					photos
 				</div>
 			</div>
 			<div id="counter">
 				<div class="follow-number">
-					{{ followers }}
+					{{ followers.length }}
 				</div>
 				<div class="follow-text">
-					Followers
+					followers
 				</div>
 			</div>
 			<div id="counter">
 				<div class="follow-number">
-					{{ following }}
+					{{ following.length }}
 				</div>
 				<div class="follow-text">
-					Following
+					following
 				</div>
+			</div>
+		</div>
+
+		<div v-if="!owner" style="margin-top: 20px;" class="d-flex gap-2">
+			<div>
+				<button v-if="!isFollowing" class="btn btn-primary" @click="followUser">
+					Follow
+					<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user-plus"/></svg>
+				</button>
+				<button v-if="isFollowing" class="btn btn-secondary" @click="followUser">
+					Unfollow
+					<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user-minus"/></svg>
+				</button>
 			</div>
 		</div>
 
 		<div style="margin-top: 20px;">
 			<div v-if="photos.length > 0">
-				<h5>Photos</h5>
+				<h3>Photos</h3>
 				<ul class="photo-list">
 					<li v-for="photo in photos">
 						<div class="photo-container">
 							<img :src="'data:image/jpeg;base64,'+photo.image">
-							{{ formatDate(photo.date) }}
+							<div v-if="owner" class="delete-button-container">
+								<button type="button" class="btn btn-sm btn-danger" @click="deletePhoto(photo.photoID)">
+								Delete
+								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#trash-2"/></svg>
+							</button>
+							</div>
+							<div id="like-counter" class="photo-text">
+								{{ photo.likes.length }}
+								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#heart"/></svg>
+							</div>
+							<div id="comment-counter" class="photo-text">
+								{{ photo.comments.length }}
+								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#message-circle"/></svg>
+							</div>
+							<p id="photo-date" class="photo-text"> {{ formatDate(photo.date) }} </p>
 						</div>
 					</li>
 				</ul>	
@@ -134,11 +183,11 @@ export default {
 <style>
 
 	#counter {
-		width: 100px;
+		width: 80px;
 	}
 
 	.follow-number {
-		font-size: 23px;
+		font-size: 25px;
 		font-weight: bold;
 		text-align: center;
 	}
@@ -149,24 +198,70 @@ export default {
 		text-align: center;
 	}
 
-	.photo-container {
-		max-height: 300px;
-        max-width: 300px;
-		align-items: center;
-		text-align: end;
-    }
-
-    .photo-container img {
-		max-height: 100%;
-        max-width: 100%;  
-    }
-
 	.photo-list {
-  		list-style-type: none;
+		list-style-type: none;
+		padding: 0;
+		margin: 0;
+		display: flex;
+		gap: 32px; /* Spazio tra le foto */
+		flex-wrap: wrap; /* Permette la visualizzazione in più righe, se necessario */
 	}
 
 	.photo-list li {
-		margin-top: 20px;
+		width: 100%; /* Può essere modificato se si desidera un layout a colonne */
+		max-width: 300px; /* Larghezza massima della box della foto */
+		border-radius: 12px; /* Angoli arrotondati per la box */
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Ombra sotto la box */
+		padding: 0; /* Rimuovi il padding interno per evitare spazi aggiuntivi */
+		position: relative; /* Necessario per posizionare il testo all'interno della box */
+	}
+
+	.photo-container {
+		width: 100%;
+		height: 300px; /* Imposta un'altezza fissa per mantenere le dimensioni uniformi */
+		border-radius: 8px; /* Angoli arrotondati per l'immagine */
+		overflow: hidden; /* Nasconde le parti dell'immagine che escono dalla box */
+		margin-bottom: 45px;
+	}
+
+	.photo-container img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover; /* Mantiene le proporzioni senza distorcere l'immagine */
+		border-radius: 8px; /* Angoli arrotondati per l'immagine */
+	}
+
+	.photo-text{
+		position: absolute;
+		background-color: rgba(255, 255, 255, 0.7); /* Colore di sfondo semitrasparente per migliorare la leggibilità */
+		padding: 4px 8px; /* Spazio interno per migliorare l'aspetto */
+		border-radius: 4px; /* Angoli arrotondati per il box della data */
+		font-size: 14px; /* Dimensione del testo */
+		color: #333; /* Colore del testo */
+		font-family: Arial, Helvetica, sans-serif;
+	}
+
+	#photo-date {
+		bottom: -8px; /* Distanza dal bordo inferiore */
+		right: 8px;
+	}
+
+	
+	#like-counter {
+		bottom: 8px; /* Distanza dal bordo inferiore */
+		left: 8px; /* Distanza dal bordo destro */
+	}
+
+	#comment-counter {
+		bottom: 8px; /* Distanza dal bordo inferiore */
+		left: 50px; /* Distanza dal bordo destro */
+	}
+
+	.delete-button-container {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		border-radius: 4px; /* Angoli arrotondati per il contenitore del pulsante */
 	}
 
 </style>

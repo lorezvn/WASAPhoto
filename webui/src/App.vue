@@ -61,7 +61,7 @@ export default {
 							</RouterLink>
 						</li>
 						<li class="nav-item">
-							<RouterLink to="/link1" class="nav-link">
+							<RouterLink to="/upload" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#camera"/></svg>
 								Upload
 							</RouterLink>
