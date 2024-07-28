@@ -613,13 +613,6 @@ components:
           type: integer
           example: 12345678
           readOnly: true
-        username:
-          description: The username of the User
-          type: string
-          example: "Maria"
-          pattern: '^.*?$'
-          minLength: 3
-          maxLength: 16
         image: 
           description: The image of the Photo 
           type: string

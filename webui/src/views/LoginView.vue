@@ -57,11 +57,7 @@ export default {
 	}
 
     .btn-primary {
-        background-color: #007bff;
-        color: #fff;
-        border: none;
 		margin-left: 5px;
-        border-radius: 3px;
     }
 	
 </style>

@@ -6,6 +6,7 @@ export default {
 			errormsg: null,
 			loading: false,
 			stream: [],
+			usernames: {}
 		}
 	},
 	methods: {
@@ -17,10 +18,25 @@ export default {
 				let response = await this.$axios.get(`/users/${userID}/stream`);
 				this.stream = response.data;
 
+				const userPromises = this.stream.map(async photo => {
+					const username = await this.getOwner(photo.userID);
+					this.usernames[photo.userID] = username;
+				});
+				await Promise.all(userPromises);
+
 			} catch (e) {
 				this.errormsg = e.toString();
 			}
 			// this.loading = false;
+		},
+
+		async getOwner(userID) {
+			try {
+				const response = await this.$axios.get(`/users/${userID}/profile`);
+				return response.data.username;
+			} catch (e) {
+				return 'Unknown';
+			}
 		},
 
 		formatDate(inputDate) {
@@ -48,7 +64,7 @@ export default {
 			<h5>Photos posted by the users you follow </h5>
 			<ul style="margin-top: 20px;" class="photo-list">
 				<li v-for="photo in stream">
-					<p class="photo-owner"> Posted by: {{ photo.username }} </p>
+					<p class="photo-owner"> Posted by: {{ usernames[photo.userID] }} </p>
 					<div class="photo-container">
 						<img :src="'data:image/jpeg;base64,'+photo.image">
 						<p class="photo-date"> {{ formatDate(photo.date) }} </p>

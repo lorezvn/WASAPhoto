@@ -38,9 +38,24 @@ export default {
 				this.visitedUsers = searches;
 			}
 		},
-		loadVisitedUsers() {
+		async loadVisitedUsers() {
 			this.visitedUsers = JSON.parse(localStorage.getItem(localStorage.getItem('token')+'visitedUsers')) || [];
+			const userPromises = this.visitedUsers.map(async user => {
+				// Keep track of the usernames of recent searched users (they might change)
+				try {
+					const response = await this.$axios.get(`/users/${user.userID}/profile`);
+					user.username = response.data.username;
+					return user;
+				} catch (e) {
+					return null;
+				}
+    		});
+    		const resolvedUsers = await Promise.all(userPromises);
+			this.visitedUsers = resolvedUsers.filter(user => user !== null);
+
+			localStorage.setItem(localStorage.getItem('token')+'visitedUsers', JSON.stringify(this.visitedUsers));
 		},
+
 		visitProfile(user) {
 			this.saveVisitedUser(user);
 			this.$router.replace("/users/"+user.userID+"/profile")

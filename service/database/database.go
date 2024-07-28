@@ -50,7 +50,7 @@ type AppDatabase interface {
 	CreateUser(username string) (int, error)
 	ChangeUsername(userID int, newUsername string) error
 	SearchUsers(username string) ([]User, error)
-	InsertPhoto(userID int, username string, image []byte) (int, string, error)
+	InsertPhoto(userID int, image []byte) (int, string, error)
 	DeletePhoto(photoID int) error
 	InsertComment(userID int, photoID int, message string) (int, string, error)
 	DeleteComment(commentID int) error
@@ -89,7 +89,6 @@ func New(db *sql.DB) (AppDatabase, error) {
 					CREATE TABLE IF NOT EXISTS photos (
 						id INTEGER PRIMARY KEY AUTOINCREMENT,
 						userID INTEGER,
-						username TEXT,
 						image BLOB,
 						date TEXT,
 						FOREIGN KEY (userID) REFERENCES users(id)

@@ -153,7 +153,7 @@ export default {
 				<ul class="photo-list">
 					<li v-for="photo in photos">
 						<div class="photo-container">
-							<img :src="'data:image/jpeg;base64,'+photo.image">
+							<img :src="'data:image/jpeg;base64,'+photo.image" alt="Image">
 							<div v-if="owner" class="delete-button-container">
 								<button type="button" class="btn btn-sm btn-danger" @click="deletePhoto(photo.photoID)">
 								Delete

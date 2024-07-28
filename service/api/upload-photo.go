@@ -40,13 +40,6 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	username, err := rt.db.GetUsernameByUserID(userToken)
-	if err != nil {
-		rt.baseLogger.WithError(err).Error("Error getting username")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
 	image, err := io.ReadAll(r.Body)
 	if err != nil {
 		rt.baseLogger.WithError(err).Error("Error reading image data")
@@ -60,7 +53,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	photoID, date, err := rt.db.InsertPhoto(userToken, username, image)
+	photoID, date, err := rt.db.InsertPhoto(userToken, image)
 	if err != nil {
 		rt.baseLogger.WithError(err).Error("Error inserting photo into DB")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -70,7 +63,6 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	photo := Photo{
 		PhotoID:  photoID,
 		UserID:   userToken,
-		Username: username,
 		Image:    image,
 		Date:     date,
 		Likes:    []Like{},

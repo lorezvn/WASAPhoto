@@ -1,5 +1,4 @@
 <script>
-import axios from 'axios';
 
 export default {
     data: function() {
@@ -23,6 +22,11 @@ export default {
             } catch (e) {
                 this.errormsg = e.toString();
             }
+        },
+        cancelImage() {
+            this.image = null;
+            this.imageUrl = null;
+            this.$refs.fileInput.value = ''; 
         }
     }
 }
@@ -31,13 +35,46 @@ export default {
 <template>
     <div
 		class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-		<h1 class="h2">Upload Photo</h1>
+		<h1 class="h2">New Photo</h1>
 	</div>
 
     <ErrorMsg v-if="errormsg"></ErrorMsg>
-    <div>
-      <input type="file" accept="image/*" @change="onChange" />
-      <button @click="uploadImage">Upload Image</button>
+
+    <div class="upload-content">
+        <input type="file" accept="image/*" @change="onChange" class="file-input" ref="fileInput"/>
+        <div v-if="imageUrl" class="photo-container image-preview">
+            <img :src="imageUrl" class="img-thumbnail" alt="Image preview" />
+        </div>
+        <div class="btn-toolbar">
+            <div class="btn-group me-2">
+                <button v-if="image" @click="uploadImage" class="btn btn-primary btn-lg">Upload Image</button>
+            </div>
+            <div class="btn-group me-2">
+                <button v-if="image" @click="cancelImage" class="btn btn-secondary btn-lg">Cancel</button>
+            </div>
+        </div>
     </div>
 </template>
+
+<style>
+
+    .upload-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .file-input {
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+
+    .image-preview {
+        max-width: 300px; /* Larghezza massima della box della foto */
+    }
+    
+</style>
   
