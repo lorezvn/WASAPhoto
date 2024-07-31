@@ -43,6 +43,7 @@ export default {
     <div class="upload-content">
         <input type="file" accept="image/*" @change="onChange" class="file-input" ref="fileInput"/>
         <div v-if="imageUrl" class="photo-container image-preview">
+            <h5 class="d-flex justify-content-center">Image Preview</h5>
             <img :src="imageUrl" class="img-thumbnail" alt="Image preview" />
         </div>
         <div class="btn-toolbar">

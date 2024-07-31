@@ -6,7 +6,6 @@ export default {
 			loading: false,
 			usernameQuery: "",
 			users: [],
-			visitedUsers: []
 		}
 	},
 	methods: {
@@ -22,48 +21,11 @@ export default {
 			}
 			// this.loading = false;
 		},
-		saveVisitedUser(user) {
 
-			let searches = JSON.parse(localStorage.getItem(localStorage.getItem('token')+'visitedUsers')) || [];
-
-			if (!searches.some(search => search.userID === user.userID)) {
-
-				searches.unshift(user);
-				
-				if (searches.length > 5) {
-					searches.pop();
-				}
-
-				localStorage.setItem(localStorage.getItem('token')+'visitedUsers', JSON.stringify(searches));
-				this.visitedUsers = searches;
-			}
-		},
-		async loadVisitedUsers() {
-			this.visitedUsers = JSON.parse(localStorage.getItem(localStorage.getItem('token')+'visitedUsers')) || [];
-			const userPromises = this.visitedUsers.map(async user => {
-				// Keep track of the usernames of recent searched users (they might change)
-				try {
-					const response = await this.$axios.get(`/users/${user.userID}/profile`);
-					user.username = response.data.username;
-					return user;
-				} catch (e) {
-					return null;
-				}
-    		});
-    		const resolvedUsers = await Promise.all(userPromises);
-			this.visitedUsers = resolvedUsers.filter(user => user !== null);
-
-			localStorage.setItem(localStorage.getItem('token')+'visitedUsers', JSON.stringify(this.visitedUsers));
-		},
-
-		visitProfile(user) {
-			this.saveVisitedUser(user);
-			this.$router.replace("/users/"+user.userID+"/profile")
+		visitProfile(userID) {
+			this.$router.replace("/users/"+userID+"/profile")
 		}
 	},
-	mounted() {
-		this.loadVisitedUsers();
-	}
 }
 </script>
 
@@ -86,24 +48,13 @@ export default {
 		<ul v-if=users.length class="list-group">
 			<li v-for="user in users" 
 				:key="user.userID" class="list-group-item d-flex justify-content-between align-items-center" 
-				@click="visitProfile(user)" 
+				@click="visitProfile(user.userID)" 
 				style="cursor: pointer;">
 				{{ user.username }}
 			</li>
     	</ul>
 
 		<p v-else-if="usernameQuery">No users found.</p>
-
-		<div v-else>
-			<ul class="list-group">
-				<li v-for="user in visitedUsers" 
-					:key="user.userID" 
-					class="list-group-item" 
-					@click="visitProfile(user)">
-					{{ user.username }}
-				</li>
-			</ul>
-		</div>
     </div>
 
 </template>

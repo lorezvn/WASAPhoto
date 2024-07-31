@@ -46,7 +46,6 @@ type AppDatabase interface {
 	PhotoExists(photoID int, photoAuthorID int) bool
 	BanExists(userID int, banID int) bool
 
-	GetUsernameByUserID(userID int) (string, error)
 	CreateUser(username string) (int, error)
 	ChangeUsername(userID int, newUsername string) error
 	SearchUsers(username string) ([]User, error)

@@ -17,6 +17,7 @@ type Photo struct {
 	Image    []byte    `json:"image"`
 	PhotoID  int       `json:"photoID"`
 	UserID   int       `json:"userID"`
+	Username string    `json:"username"`
 	Date     string    `json:"date"`
 	Likes    []Like    `json:"likes"`
 	Comments []Comment `json:"comments"`

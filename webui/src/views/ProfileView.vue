@@ -1,17 +1,20 @@
 
 <script>
+import LoadingSpinner from '../components/LoadingSpinner.vue';
+
 export default {
 	data: function() {
 		return {
 			errormsg: null,
-			loading: false,
+			loading: true,
 			username: "",
 			photos: [],
 			numberOfPhotos: 0,
 			followers: 0,
 			following: 0,
 			userID: null,
-			isFollowing: false
+			isFollowing: false,
+			isBanning: false,
 		}
 	},
 	computed: {
@@ -26,11 +29,11 @@ export default {
                 return
             }
 
-			// this.loading = true;
 			this.errormsg = null;
 			
 			try {
 				let response = await this.$axios.get(`/users/${this.userID}/profile`);
+				
 				this.username = response.data.username;
 				this.photos = response.data.photos;
 				this.numberOfPhotos = response.data.photos.length;
@@ -41,7 +44,7 @@ export default {
 			} catch (e) {
 				this.errormsg = e.toString();
 			}
-			//this.loading = false;
+			this.loading = false;
 		},
 		async deletePhoto(photoID) {
 			try {
@@ -63,6 +66,40 @@ export default {
 			} catch(e) {
 				this.errormsg = e.toString();
 			}
+		},
+		async banUser() {
+			try {
+				if (!this.isBanning) {
+					await this.$axios.put(`/users/${localStorage.getItem('token')}/ban/${this.userID}`);
+				} else {
+					await this.$axios.delete(`/users/${localStorage.getItem('token')}/ban/${this.userID}`);
+				}
+				this.isBanning = !this.isBanning
+				this.getUserProfile();
+			} catch(e) {
+				this.errormsg = e.toString();
+			}
+		},
+		async likePost(photo) {
+			this.errormsg = null;
+			try {
+				let liked = this.isLiked(photo);
+				if (!liked) {
+					await this.$axios.put(`/users/${photo.userID}/photos/${photo.photoID}/likes/${localStorage.getItem('token')}`);
+				} else {
+					await this.$axios.delete(`/users/${photo.userID}/photos/${photo.photoID}/likes/${localStorage.getItem('token')}`);
+				}
+				this.getUserProfile();
+
+			} catch (e) {
+				this.errormsg = e.toString();
+			}
+		},
+		isLiked(photo) {
+			return photo.likes.some(user => user.userID == localStorage.getItem('token'));
+		},
+		goToUpload() {
+			this.$router.push("/upload");
 		},
 		goToSettings() {
 			this.$router.push("/users/"+this.userID+"/profile/settings")
@@ -92,58 +129,74 @@ export default {
 </script>
 
 <template>
-	<div>
-		<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-			<h1 class="h2">{{ username }}</h1>
-			<div v-if="owner" class="btn-toolbar mb-2 mb-md-0">
+	<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+		<h1 class="h2">{{ username }}</h1>
+		<div v-if="owner" class="btn-toolbar mb-2 mb-md-0">
+			<div class="btn-group me-2">
+				<button type="button" class="btn btn-sm btn-outline-primary" @click="goToUpload">
+					<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#camera"/></svg>
+					Upload
+				</button>
+				<button type="button" class="btn btn-sm btn-outline-secondary" @click="goToSettings">
+					<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#settings"/></svg>
+					Settings
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
+
+	<LoadingSpinner :loading="loading">	
+		<div>
+			<div class="d-flex flex-md-nowrap align-items-left">
+				<div id="counter">
+					<div class="follow-number">
+						{{ numberOfPhotos }}
+					</div>
+					<div class="follow-text">
+						photos
+					</div>
+				</div>
+				<div id="counter">
+					<div class="follow-number">
+						{{ followers.length }}
+					</div>
+					<div class="follow-text">
+						followers
+					</div>
+				</div>
+				<div id="counter">
+					<div class="follow-number">
+						{{ following.length }}
+					</div>
+					<div class="follow-text">
+						following
+					</div>
+				</div>
+			</div>
+
+			<div v-if="!owner" style="margin-left: -910px;" class="btn-toolbar justify-content-center mt-3">
 				<div class="btn-group me-2">
-					<button type="button" class="btn btn-sm btn-outline-secondary" @click="goToSettings">
-						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#settings"/></svg>
-						Settings
+					<button v-if="!isFollowing" class="btn btn-primary btn-sm" @click="followUser">
+						Follow
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user-plus"/></svg>
+					</button>
+					<button v-if="isFollowing" class="btn btn-secondary btn-sm" @click="followUser">
+						Unfollow
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user-minus"/></svg>
 					</button>
 				</div>
-			</div>
-		</div>
-
-		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
-		
-		<div class="d-flex flex-md-nowrap align-items-left">
-			<div id="counter">
-				<div class="follow-number">
-					{{ numberOfPhotos }}
+				<div class="btn-group me-2">
+					<button v-if="!isBanning" class="btn btn-primary btn-sm" @click="follofwUser">
+						Ban
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#lock"/></svg>
+					</button>
+					<button v-if="isBanning" class="btn btn-secondary btn-sm" @click="followUser">
+						Unban
+						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#unlock"/></svg>
+					</button>
 				</div>
-				<div class="follow-text">
-					photos
-				</div>
-			</div>
-			<div id="counter">
-				<div class="follow-number">
-					{{ followers.length }}
-				</div>
-				<div class="follow-text">
-					followers
-				</div>
-			</div>
-			<div id="counter">
-				<div class="follow-number">
-					{{ following.length }}
-				</div>
-				<div class="follow-text">
-					following
-				</div>
-			</div>
-		</div>
-
-		<div v-if="!owner" style="margin-top: 20px;" class="d-flex gap-2">
-			<div>
-				<button v-if="!isFollowing" class="btn btn-primary" @click="followUser">
-					Follow
-					<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user-plus"/></svg>
-				</button>
-				<button v-if="isFollowing" class="btn btn-secondary" @click="followUser">
-					Unfollow
-					<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user-minus"/></svg>
-				</button>
 			</div>
 		</div>
 
@@ -160,13 +213,29 @@ export default {
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#trash-2"/></svg>
 							</button>
 							</div>
-							<div id="like-counter" class="photo-text">
-								{{ photo.likes.length }}
-								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#heart"/></svg>
-							</div>
-							<div id="comment-counter" class="photo-text">
-								{{ photo.comments.length }}
-								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#message-circle"/></svg>
+							<div class="d-flex align-items-center justify-content-between">
+								<!-- Display Like and Comment buttons if not the owner -->
+								<div v-if="!owner">
+									<div id="like-counter" class="btn btn-outline-secondary btn-sm me" @click="likePost(photo)">
+										{{ photo.likes.length }}
+										<svg class="feather" :class="{'liked': isLiked(photo)}">
+											<use href="/feather-sprite-v4.29.0.svg#heart"/>
+										</svg>
+									</div>
+									
+									<button id="comment-counter" class="btn btn-outline-secondary btn-sm">
+										{{ photo.comments.length }}
+										<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#message-circle"/></svg>
+									</button>
+								</div>
+
+								<!-- Display only Comment button if the owner -->
+								<div v-else>
+									<button style="left:8px;" id="comment-counter" class="btn btn-outline-secondary btn-sm">
+										{{ photo.comments.length }}
+										<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#message-circle"/></svg>
+									</button>
+								</div>
 							</div>
 							<p id="photo-date" class="photo-text"> {{ formatDate(photo.date) }} </p>
 						</div>
@@ -177,7 +246,7 @@ export default {
 				<h5>No photos posted</h5>
 			</div>
 		</div>
-	</div>
+	</LoadingSpinner>
 </template>
 
 <style>
@@ -233,7 +302,6 @@ export default {
 
 	.photo-text{
 		position: absolute;
-		background-color: rgba(255, 255, 255, 0.7); /* Colore di sfondo semitrasparente per migliorare la leggibilità */
 		padding: 4px 8px; /* Spazio interno per migliorare l'aspetto */
 		border-radius: 4px; /* Angoli arrotondati per il box della data */
 		font-size: 14px; /* Dimensione del testo */
@@ -248,13 +316,15 @@ export default {
 
 	
 	#like-counter {
+		position: absolute;
 		bottom: 8px; /* Distanza dal bordo inferiore */
 		left: 8px; /* Distanza dal bordo destro */
 	}
 
 	#comment-counter {
+		position: absolute;
 		bottom: 8px; /* Distanza dal bordo inferiore */
-		left: 50px; /* Distanza dal bordo destro */
+		left: 60px;
 	}
 
 	.delete-button-container {
@@ -263,5 +333,7 @@ export default {
 		right: 8px;
 		border-radius: 4px; /* Angoli arrotondati per il contenitore del pulsante */
 	}
+
+	
 
 </style>

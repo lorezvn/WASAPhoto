@@ -65,7 +65,7 @@ func (db *appdbimpl) GetCompletePhotos(rows *sql.Rows) ([]Photo, error) {
 
 	for rows.Next() {
 		var photo Photo
-		if err := rows.Scan(&photo.PhotoID, &photo.UserID, &photo.Image, &photo.Date); err != nil {
+		if err := rows.Scan(&photo.PhotoID, &photo.UserID, &photo.Image, &photo.Date, &photo.Username); err != nil {
 			return nil, err
 		}
 		photo.Comments, _ = db.GetComments(photo.PhotoID)
@@ -87,8 +87,9 @@ func (db *appdbimpl) GetCompletePhotos(rows *sql.Rows) ([]Photo, error) {
 
 func (db *appdbimpl) GetUserPhotos(userID int) ([]Photo, error) {
 
-	query := `SELECT * 
+	query := `SELECT photos.*, users.username
 			  FROM photos 
+			  JOIN users ON photos.userID = users.id
 			  WHERE photos.userID = ? 
 			  ORDER BY date DESC`
 
@@ -104,8 +105,9 @@ func (db *appdbimpl) GetUserPhotos(userID int) ([]Photo, error) {
 func (db *appdbimpl) GetStream(userID int) ([]Photo, error) {
 
 	// Query all photos from users followed by the given userID
-	query := `SELECT *
+	query := `SELECT photos.*, users.username
 			  FROM photos
+			  JOIN users ON photos.userID = users.id
 			  WHERE photos.userID IN (SELECT followID FROM follow WHERE userID = ?)
 			  ORDER BY date DESC`
 

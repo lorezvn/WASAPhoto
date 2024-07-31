@@ -18,19 +18,6 @@ func (db *appdbimpl) GetUserIDByUsername(username string) (int, error) {
 	return userID, nil
 }
 
-func (db *appdbimpl) GetUsernameByUserID(userID int) (string, error) {
-	var username string
-	err := db.c.QueryRow("SELECT username FROM users WHERE id = ?", userID).Scan(&username)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return "", nil
-		}
-		return "", err
-	}
-
-	return username, nil
-}
-
 func (db *appdbimpl) SearchUsers(username string) ([]User, error) {
 
 	var users []User
