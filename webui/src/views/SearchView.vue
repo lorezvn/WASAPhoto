@@ -23,7 +23,7 @@ export default {
 		},
 
 		visitProfile(userID) {
-			this.$router.replace("/users/"+userID+"/profile")
+			this.$router.push("/users/"+userID+"/profile")
 		}
 	},
 }
@@ -38,11 +38,16 @@ export default {
 
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <form @submit.prevent="searchUsers">
-            <input type="text" v-model="usernameQuery" @input="searchUsers" placeholder="Search for users..."/>
-            <button type="submit" class="btn btn btn-primary">
-                Search
-                <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#search"/></svg>
-            </button>
+			<div class="form-group col-auto">
+				<div class="input-group mb-2">
+					<div class="input-group-prepend">
+						<div class="input-group-text">
+							<svg style="height:23px;" class="feather"><use href="/feather-sprite-v4.29.0.svg#search"/></svg>
+						</div>
+					</div>
+					<input type="text" v-model="usernameQuery" class="form-control" @input="searchUsers" placeholder="Search for users..."/>
+				</div>	
+			</div>
         </form> 
 
 		<ul v-if=users.length class="list-group">

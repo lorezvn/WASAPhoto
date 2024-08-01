@@ -17,7 +17,7 @@ export default {
 
             try {
                 let userID = localStorage.getItem('token');
-                let response = await this.$axios.post(`/users/${userID}/photos/`, this.image);
+                await this.$axios.post(`/users/${userID}/photos/`, this.image);
                 this.$router.push(`/users/${userID}/profile`);
             } catch (e) {
                 this.errormsg = e.toString();
@@ -26,7 +26,7 @@ export default {
         cancelImage() {
             this.image = null;
             this.imageUrl = null;
-            this.$refs.fileInput.value = ''; 
+            this.$refs.imgInput.value = ''; 
         }
     }
 }
@@ -40,18 +40,25 @@ export default {
 
     <ErrorMsg v-if="errormsg"></ErrorMsg>
 
-    <div class="upload-content">
-        <input type="file" accept="image/*" @change="onChange" class="file-input" ref="fileInput"/>
-        <div v-if="imageUrl" class="photo-container image-preview">
-            <h5 class="d-flex justify-content-center">Image Preview</h5>
-            <img :src="imageUrl" class="img-thumbnail" alt="Image preview" />
-        </div>
-        <div class="btn-toolbar">
-            <div class="btn-group me-2">
-                <button v-if="image" @click="uploadImage" class="btn btn-primary btn-lg">Upload Image</button>
+    <div>
+        <form>
+            <div class="form-group mb-3">
+                <label class="mb-2" for="imgInput">Upload a new photo</label>
+                <input type="file" accept="image/*" class="form-control" @change="onChange" id="imgInput" ref="imgInput">
             </div>
-            <div class="btn-group me-2">
-                <button v-if="image" @click="cancelImage" class="btn btn-secondary btn-lg">Cancel</button>
+        </form>
+        <div v-if="imageUrl" class="upload-content">
+            <div class="photo-container image-preview">
+                <h5 class="d-flex justify-content-center">Image preview</h5>
+                <img :src="imageUrl" class="img-thumbnail" alt="Image preview" />
+            </div>
+            <div class="btn-toolbar">
+                <div class="btn-group me-2">
+                    <button v-if="image" @click="uploadImage" class="btn btn-primary btn-lg">Upload Image</button>
+                </div>
+                <div class="btn-group me-2">
+                    <button v-if="image" @click="cancelImage" class="btn btn-secondary btn-lg">Cancel</button>
+                </div>
             </div>
         </div>
     </div>

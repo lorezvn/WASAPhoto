@@ -6,13 +6,13 @@ export default {
 	data: function() {
 		return {
 			errormsg: null,
-			loading: true,
+			loading: false,
 			username: "",
-			photos: [],
-			numberOfPhotos: 0,
-			followers: 0,
-			following: 0,
 			userID: null,
+			photos: [],
+			followers: [],
+			followersCount: 0,
+			following: [],
 			isFollowing: false,
 			isBanning: false,
 		}
@@ -30,15 +30,16 @@ export default {
             }
 
 			this.errormsg = null;
+			this.loading = true;
 			
 			try {
 				let response = await this.$axios.get(`/users/${this.userID}/profile`);
 				
 				this.username = response.data.username;
 				this.photos = response.data.photos;
-				this.numberOfPhotos = response.data.photos.length;
 				this.followers = response.data.followers;
 				this.following = response.data.following;
+				this.followersCount = response.data.followers.length;
 				this.isFollowing = this.followers.some(follower => follower.userID == localStorage.getItem('token'));
 
 			} catch (e) {
@@ -49,7 +50,7 @@ export default {
 		async deletePhoto(photoID) {
 			try {
 				await this.$axios.delete(`/users/${localStorage.getItem('token')}/photos/${photoID}`);
-				this.getUserProfile();
+				this.photos = this.photos.filter(photo => photo.photoID != photoID);
 			} catch(e) {
 				this.errormsg = e.toString();
 			}
@@ -58,11 +59,13 @@ export default {
 			try {
 				if (!this.isFollowing) {
 					await this.$axios.put(`/users/${localStorage.getItem('token')}/follow/${this.userID}`);
+					this.followersCount += 1
+
 				} else {
 					await this.$axios.delete(`/users/${localStorage.getItem('token')}/follow/${this.userID}`);
+					this.followersCount -= 1
 				}
 				this.isFollowing = !this.isFollowing
-				this.getUserProfile();
 			} catch(e) {
 				this.errormsg = e.toString();
 			}
@@ -84,12 +87,14 @@ export default {
 			this.errormsg = null;
 			try {
 				let liked = this.isLiked(photo);
+				let userID = localStorage.getItem('token');
 				if (!liked) {
-					await this.$axios.put(`/users/${photo.userID}/photos/${photo.photoID}/likes/${localStorage.getItem('token')}`);
+					await this.$axios.put(`/users/${photo.userID}/photos/${photo.photoID}/likes/${userID}`);
+					photo.likes.push({ userID: userID });
 				} else {
-					await this.$axios.delete(`/users/${photo.userID}/photos/${photo.photoID}/likes/${localStorage.getItem('token')}`);
+					await this.$axios.delete(`/users/${photo.userID}/photos/${photo.photoID}/likes/${userID}`);
+					photo.likes = photo.likes.filter(user => user.userID != userID);
 				}
-				this.getUserProfile();
 
 			} catch (e) {
 				this.errormsg = e.toString();
@@ -105,7 +110,7 @@ export default {
 			this.$router.push("/users/"+this.userID+"/profile/settings")
 		},
 		formatDate(inputDate) {
-			const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric'};
+			const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric'};
   			const formattedDate = new Date(inputDate).toLocaleDateString('en-US', options);
   			return formattedDate;
 		}
@@ -149,10 +154,10 @@ export default {
 
 	<LoadingSpinner :loading="loading">	
 		<div>
-			<div class="d-flex flex-md-nowrap align-items-left">
+			<div class="d-flex flex-md-nowrap align-items-center">
 				<div id="counter">
 					<div class="follow-number">
-						{{ numberOfPhotos }}
+						{{ photos.length }}
 					</div>
 					<div class="follow-text">
 						photos
@@ -160,7 +165,7 @@ export default {
 				</div>
 				<div id="counter">
 					<div class="follow-number">
-						{{ followers.length }}
+						{{ followersCount}}
 					</div>
 					<div class="follow-text">
 						followers
@@ -202,7 +207,6 @@ export default {
 
 		<div style="margin-top: 20px;">
 			<div v-if="photos.length > 0">
-				<h3>Photos</h3>
 				<ul class="photo-list">
 					<li v-for="photo in photos">
 						<div class="photo-container">
@@ -214,24 +218,21 @@ export default {
 							</button>
 							</div>
 							<div class="d-flex align-items-center justify-content-between">
-								<!-- Display Like and Comment buttons if not the owner -->
-								<div v-if="!owner">
-									<div id="like-counter" class="btn btn-outline-secondary btn-sm me" @click="likePost(photo)">
+								<div>
+									<div v-if="!owner" id="like-counter" :class="['btn btn-sm', isLiked(photo) ? 'btn-outline-danger' : 'btn-outline-secondary']" @click="likePost(photo)">
 										{{ photo.likes.length }}
 										<svg class="feather" :class="{'liked': isLiked(photo)}">
 											<use href="/feather-sprite-v4.29.0.svg#heart"/>
 										</svg>
 									</div>
+									<button v-else id="like-counter" class="btn btn-outline-secondary btn-sm me" @click="likePost(photo)" disabled>
+										{{ photo.likes.length }}
+										<svg class="feather" :class="{'liked': isLiked(photo)}">
+											<use href="/feather-sprite-v4.29.0.svg#heart"/>
+										</svg>
+									</button>
 									
 									<button id="comment-counter" class="btn btn-outline-secondary btn-sm">
-										{{ photo.comments.length }}
-										<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#message-circle"/></svg>
-									</button>
-								</div>
-
-								<!-- Display only Comment button if the owner -->
-								<div v-else>
-									<button style="left:8px;" id="comment-counter" class="btn btn-outline-secondary btn-sm">
 										{{ photo.comments.length }}
 										<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#message-circle"/></svg>
 									</button>
@@ -256,13 +257,13 @@ export default {
 	}
 
 	.follow-number {
-		font-size: 25px;
+		font-size: 20px;
 		font-weight: bold;
 		text-align: center;
 	}
 
 	.follow-text {
-		font-size: 15px;
+		font-size: 14px;
 		color:gray;
 		text-align: center;
 	}

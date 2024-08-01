@@ -1,4 +1,7 @@
 <script>
+import LoadingSpinner from '../components/LoadingSpinner.vue';
+
+
 export default {
 	data: function() {
 		return {
@@ -10,7 +13,6 @@ export default {
 	},
 	methods: {
 		async login() {
-			// this.loading = true;
 			this.errormsg = null;
 			try {
 				let response = await this.$axios.post("/session", {
@@ -23,24 +25,40 @@ export default {
 			} catch (e) {
 				this.errormsg = e.toString();
 			}
-			// this.loading = false;
 		},
+		invalidUsername(username) {
+			return username.length < 3 || username.length > 16 || username.trim().length < 3
+		}
 	},
 }
 </script>
 
 <template>
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Login</h1>
+    <div class="d-flex justify-content-center flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Welcome to WASAPhoto</h1>
 	</div>
 
     <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 
-    <form @submit.prevent="login">
-        <label for="username">Insert your username</label>
-        <input type="text" v-model="username"/>
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form> 
+	<LoadingSpinner></LoadingSpinner>
+
+	<form @submit.prevent="login">
+		<div class="container d-flex align-items-center justify-content-center">
+			<div class="form-group mb-2 col-4">
+				<label class="mb-2">Username</label>
+				<input type="text"
+					v-model="username"
+					class="form-control"
+					placeholder="Enter username" 
+					maxlength="16">
+				<small class="form-text text-muted">Must be 3-16 characters long.</small>
+			</div>
+			<div>
+				<button type="submit" class="btn btn-primary"
+				:disabled="invalidUsername(username)">Submit</button>
+			</div>
+		</div>
+	</form>
     
 </template>
 
@@ -51,10 +69,6 @@ export default {
         background-color: #f8f9fa;
         color: #000000;
     }
-
-	label {
-		margin-right: 5px;
-	}
 
     .btn-primary {
 		margin-left: 5px;

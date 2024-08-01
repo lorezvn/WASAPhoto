@@ -4,7 +4,7 @@ export default {
 	data: function() {
 		return {
 			errormsg: null,
-			loading: true,
+			loading: false,
 			stream: [],
 			userID: localStorage.getItem('token')
 		}
@@ -12,6 +12,7 @@ export default {
 	methods: {
 		async getStream() {
 			this.errormsg = null;
+			this.loading = true;
 			try {
 				let response = await this.$axios.get(`/users/${this.userID}/stream`);
 				this.stream = response.data;
@@ -27,10 +28,11 @@ export default {
 				let liked = this.isLiked(photo);
 				if (!liked) {
 					await this.$axios.put(`/users/${photo.userID}/photos/${photo.photoID}/likes/${this.userID}`);
+					photo.likes.push({ userID: this.userID });
 				} else {
 					await this.$axios.delete(`/users/${photo.userID}/photos/${photo.photoID}/likes/${this.userID}`);
+					photo.likes = photo.likes.filter(user => user.userID != this.userID);
 				}
-				this.getStream();
 
 			} catch (e) {
 				this.errormsg = e.toString();
@@ -44,7 +46,7 @@ export default {
 			this.$router.push("/users/"+userID+"/profile")
 		},
 		formatDate(inputDate) {
-			const options = { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric'};
+			const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric'};
   			const formattedDate = new Date(inputDate).toLocaleDateString('en-US', options);
   			return formattedDate;
 		},
@@ -68,14 +70,12 @@ export default {
 				<h5>Photos posted by the users you follow</h5>
 				<ul style="margin-top: 20px;" class="photo-list">
 					<li v-for="photo in stream" :key="photo.photoID">
-						<button @click="visitProfile(photo.userID)" class="photo-owner">
-							{{ photo.username }}
+						<button @click="visitProfile(photo.userID)" class="btn btn-sm btn-secondary position-absolute photo-owner">
+							<strong>@{{ photo.username }}</strong>
 						</button>
 						<div class="photo-container">
 							<img :src="'data:image/jpeg;base64,' + photo.image" alt="Image">
-							<div id="like-counter" 
-								class="btn btn btn-outline-secondary btn-sm" 
-								@click="likePost(photo)">
+							<div id="like-counter" :class="['btn btn-sm', isLiked(photo) ? 'btn-outline-danger' : 'btn-outline-secondary']" @click="likePost(photo)">
 								{{ photo.likes.length }}
 								<svg class="feather" :class="{'liked': isLiked(photo)}">
 									<use href="/feather-sprite-v4.29.0.svg#heart"/>
@@ -98,15 +98,10 @@ export default {
 
 <style>
 	.photo-owner {
-		position: absolute;
-		top: 8px; /* Distanza dal bordo inferiore */
-		left: 8px; /* Distanza dal bordo destro */
-		background-color: rgba(255, 255, 255, 0.7); /* Colore di sfondo semitrasparente per migliorare la leggibilità */
-		padding: 4px 8px; /* Spazio interno per migliorare l'aspetto */
-		border-radius: 4px; /* Angoli arrotondati per il box della data */
-		font-size: 14px; /* Dimensione del testo */
-		color: #333; /* Colore del testo */
-		font-family: Arial, Helvetica, sans-serif;
+		top: 8px;
+		left: 8px;
+		background-color: rgb(255, 255, 255);
+		color:black
 	}
 
 	.feather.liked use {

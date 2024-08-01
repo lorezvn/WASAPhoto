@@ -53,7 +53,7 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 
 	if !validUsername(newUsername) {
 		rt.baseLogger.Error("Invalid username")
-		writeJSONResponse(w, http.StatusBadRequest, "Invalid username: a valid username should have 3-16 characters")
+		writeJSONResponse(w, http.StatusBadRequest, "A valid username must be 3-16 characters long")
 		// w.WriteHeader(http.StatusBadRequest)
 		return
 	}
