@@ -42,7 +42,7 @@ type AppDatabase interface {
 	SetName(name string) error
 
 	UserExists(userID int) bool
-	UsernameExists(username string) bool
+	UsernameExists(userID int, username string) bool
 	PhotoExists(photoID int, photoAuthorID int) bool
 	BanExists(userID int, banID int) bool
 
@@ -57,6 +57,7 @@ type AppDatabase interface {
 	DeleteLike(userID int, photoID int) error
 	FollowUser(userID int, followID int) error
 	UnfollowUser(userID int, followID int) error
+	BannedUsers(userID int) ([]User, error)
 	BanUser(userID int, banID int) error
 	UnbanUser(userID int, banID int) error
 	GetStream(userID int) ([]Photo, error)

@@ -2,13 +2,13 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
+	"github.com/julienschmidt/httprouter"
 )
 
-// Get user profile by user ID
-func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+// Returns all the users banned by a user
+func (rt *_router) getBannedUsers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	w.Header().Set("content-type", "application/json")
 
@@ -33,26 +33,19 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 
-	if rt.db.BanExists(userID, userToken) {
-		rt.baseLogger.Error("You have been banned, impossible to visualize this profile")
-		w.WriteHeader(http.StatusForbidden)
-		return
-	}
-
-	userProfile, err := rt.db.GetUserProfile(userID)
+	users, err := rt.db.BannedUsers(userID)
 	if err != nil {
-		rt.baseLogger.WithError(err).Error("Error getting user profile")
+		rt.baseLogger.WithError(err).Error("Error searching users")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	encoder := json.NewEncoder(w)
 	encoder.SetIndent("", "    ")
-	if err := encoder.Encode(userProfile); err != nil {
+	if err := encoder.Encode(users); err != nil {
 		rt.baseLogger.WithError(err).Error("Encoding JSON failed")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	rt.baseLogger.Info("User profile returned")
 }
+

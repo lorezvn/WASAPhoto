@@ -60,10 +60,12 @@ func (db *appdbimpl) UserExists(userID int) bool {
 	return err == nil
 }
 
-func (db *appdbimpl) UsernameExists(username string) bool {
+func (db *appdbimpl) UsernameExists(userID int, username string) bool {
 
 	var count int
-	err := db.c.QueryRow("SELECT COUNT(*) FROM users WHERE username = ?", username).Scan(&count)
+
+	// Excluding the user making the request, this allows the user to change to the username they previously had
+	err := db.c.QueryRow("SELECT COUNT(*) FROM users WHERE username = ? AND id <> ?", username, userID).Scan(&count)
 	if err != nil {
 		return false
 	}

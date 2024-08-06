@@ -4,7 +4,7 @@ info:
   description: |- 
     This OpenAPI document describes the APIs required for the Project "WASAPhoto" 
     of the WASA exam of Sapienza University of Rome.
-  version: 0.0.3
+  version: 1.0.1
 servers:
   - url: "http://localhost:3000"
 tags:
@@ -237,7 +237,7 @@ paths:
         "500":
           $ref: "#/components/responses/500InternalServerError"
           
-  /users:
+  /users/:
     parameters:
       - $ref: "#/components/parameters/usernameQueryParam"
     get:
@@ -289,6 +289,8 @@ paths:
                 $ref: "#/components/schemas/UserProfile"
         "400":
           $ref: "#/components/responses/400BadRequest"
+        "403":
+          description: You have been banned, impossible to visualize this profile
         "404":
           $ref: "#/components/responses/404NotFound"
         "500":
@@ -405,6 +407,36 @@ paths:
           $ref: "#/components/responses/403Forbidden"
         "404":
           $ref: "#/components/responses/404NotFound"          
+        "500":
+          $ref: "#/components/responses/500InternalServerError"
+          
+  /users/{userID}/ban/:
+    parameters:
+      - $ref: "#/components/parameters/userIDParam"
+    get:
+      security:
+        - bearerAuthentication: []
+      tags: ["ban"]
+      summary: Get list of users banned by a user
+      description: |-
+        Given the user id, returns the list of users banned by the user associated with the given user id
+      operationId: getBannedUsers
+      responses:
+        "200":
+          description: List of banned users
+          content:
+            application/json:
+              schema:
+                type: array
+                description: Array containing all the Users
+                items:
+                  $ref: "#/components/schemas/User"
+                minItems: 0
+                maxItems: 100
+        "400":
+          $ref: "#/components/responses/400BadRequest"
+        "404":
+          $ref: "#/components/responses/404NotFound" 
         "500":
           $ref: "#/components/responses/500InternalServerError"
     

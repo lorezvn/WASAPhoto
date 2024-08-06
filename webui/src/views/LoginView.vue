@@ -55,7 +55,9 @@ export default {
 			</div>
 			<div>
 				<button type="submit" class="btn btn-primary"
-				:disabled="invalidUsername(username)">Submit</button>
+				:disabled="invalidUsername(username)">
+					Submit
+				</button>
 			</div>
 		</div>
 	</form>

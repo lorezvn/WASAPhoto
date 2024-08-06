@@ -53,3 +53,42 @@ func (db *appdbimpl) UnbanUser(userID int, banID int) error {
 	}
 	return nil
 }
+
+func (db *appdbimpl) BannedUsers(userID int) ([]User, error) {
+
+
+	var bannedUsers []User
+
+	query := `SELECT ban.banID, users.username 
+			  FROM ban
+			  JOIN users ON users.id = ban.banID
+			  WHERE ban.userID = ?`
+
+	rows, err := db.c.Query(query, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+
+		var user User
+		if err := rows.Scan(&user.UserID, &user.Username); err != nil {
+			return nil, err
+		}
+
+		bannedUsers = append(bannedUsers, user)
+	}
+
+	// Check errors during iteration
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	if len(bannedUsers) == 0 {
+		return []User{}, nil
+	}
+
+	return bannedUsers, nil
+}

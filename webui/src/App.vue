@@ -34,6 +34,7 @@ export default {
 		<div v-if="showNavBar" class="btn-toolbar mb-2 mb-md-0">
 			<div class="btn-group me-3">
 				<button type="button" class="btn btn-sm btn-primary" @click="logout">
+					<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#log-out"/></svg>
 					Logout
 				</button>
 			</div>
@@ -62,7 +63,7 @@ export default {
 						</li>
 						<li class="nav-item">
 							<RouterLink to="/upload" class="nav-link">
-								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#camera"/></svg>
+								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#upload"/></svg>
 								Upload
 							</RouterLink>
 						</li>

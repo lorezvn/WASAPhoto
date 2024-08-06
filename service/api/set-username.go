@@ -58,7 +58,7 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	if rt.db.UsernameExists(newUsername) {
+	if rt.db.UsernameExists(userID, newUsername) {
 		rt.baseLogger.Error("Username chosen already exists")
 		writeJSONResponse(w, http.StatusConflict, "Username chosen already exists")
 		// w.WriteHeader(http.StatusConflict)

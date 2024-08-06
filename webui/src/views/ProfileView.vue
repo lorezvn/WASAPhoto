@@ -15,6 +15,7 @@ export default {
 			following: [],
 			isFollowing: false,
 			isBanning: false,
+			showModal: false
 		}
 	},
 	computed: {
@@ -42,10 +43,25 @@ export default {
 				this.followersCount = response.data.followers.length;
 				this.isFollowing = this.followers.some(follower => follower.userID == localStorage.getItem('token'));
 
+				await this.getBannedUsers();
+
 			} catch (e) {
+				if (e.response.status === 403) {
+					this.$router.replace("/banned");
+				}
 				this.errormsg = e.toString();
 			}
 			this.loading = false;
+		},
+		async getBannedUsers() {
+			try {
+				let response = await this.$axios.get(`/users/${localStorage.getItem('token')}/ban/`);
+				this.bannedUsers = response.data;
+				this.isBanning = this.bannedUsers.some(bannedUser => bannedUser.userID == this.userID);
+				
+			} catch (e) {
+				this.errormsg = e.toString();
+			}
 		},
 		async deletePhoto(photoID) {
 			try {
@@ -74,11 +90,11 @@ export default {
 			try {
 				if (!this.isBanning) {
 					await this.$axios.put(`/users/${localStorage.getItem('token')}/ban/${this.userID}`);
+					this.isFollowing = false;
 				} else {
 					await this.$axios.delete(`/users/${localStorage.getItem('token')}/ban/${this.userID}`);
 				}
 				this.isBanning = !this.isBanning
-				this.getUserProfile();
 			} catch(e) {
 				this.errormsg = e.toString();
 			}
@@ -113,7 +129,7 @@ export default {
 			const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric'};
   			const formattedDate = new Date(inputDate).toLocaleDateString('en-US', options);
   			return formattedDate;
-		}
+		},
 	},
 	watch: {
         '$route.params.userID': {
@@ -139,8 +155,8 @@ export default {
 		<div v-if="owner" class="btn-toolbar mb-2 mb-md-0">
 			<div class="btn-group me-2">
 				<button type="button" class="btn btn-sm btn-outline-primary" @click="goToUpload">
-					<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#camera"/></svg>
-					Upload
+					<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#upload"/></svg>
+					Upload Photo
 				</button>
 				<button type="button" class="btn btn-sm btn-outline-secondary" @click="goToSettings">
 					<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#settings"/></svg>
@@ -153,8 +169,8 @@ export default {
 	<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 
 	<LoadingSpinner :loading="loading">	
-		<div>
-			<div class="d-flex flex-md-nowrap align-items-center">
+		<div style="float:left;" class="d-flex-column mb-4">
+			<div class="d-flex justify-content-center">
 				<div id="counter">
 					<div class="follow-number">
 						{{ photos.length }}
@@ -181,8 +197,8 @@ export default {
 				</div>
 			</div>
 
-			<div v-if="!owner" style="margin-left: -910px;" class="btn-toolbar justify-content-center mt-3">
-				<div class="btn-group me-2">
+			<div v-if="!owner" class="btn-toolbar justify-content-center mt-3">
+				<div v-if="!isBanning" class="btn-group me-2">
 					<button v-if="!isFollowing" class="btn btn-primary btn-sm" @click="followUser">
 						Follow
 						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user-plus"/></svg>
@@ -193,11 +209,11 @@ export default {
 					</button>
 				</div>
 				<div class="btn-group me-2">
-					<button v-if="!isBanning" class="btn btn-primary btn-sm" @click="follofwUser">
+					<button v-if="!isBanning" class="btn btn-primary btn-sm" @click="banUser">
 						Ban
 						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#lock"/></svg>
 					</button>
-					<button v-if="isBanning" class="btn btn-secondary btn-sm" @click="followUser">
+					<button v-if="isBanning" class="btn btn-secondary btn-sm" @click="banUser">
 						Unban
 						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#unlock"/></svg>
 					</button>
@@ -205,7 +221,7 @@ export default {
 			</div>
 		</div>
 
-		<div style="margin-top: 20px;">
+		<div style="clear:both;" class="mt-4">
 			<div v-if="photos.length > 0">
 				<ul class="photo-list">
 					<li v-for="photo in photos">
@@ -243,8 +259,8 @@ export default {
 					</li>
 				</ul>	
 			</div>
-			<div v-else>
-				<h5>No photos posted</h5>
+			<div v-else style="height:40vh;" class="d-flex flex-column align-items-center justify-content-center pt-3 pb-2 border-top">
+            	<svg id="icon-no-post" class="feather"><use href="/feather-sprite-v4.29.0.svg#camera-off"/></svg>
 			</div>
 		</div>
 	</LoadingSpinner>
@@ -254,6 +270,7 @@ export default {
 
 	#counter {
 		width: 80px;
+		text-align: center;
 	}
 
 	.follow-number {
@@ -287,44 +304,45 @@ export default {
 	}
 
 	.photo-container {
+		text-align: left;
 		width: 100%;
-		height: 300px; /* Imposta un'altezza fissa per mantenere le dimensioni uniformi */
-		border-radius: 8px; /* Angoli arrotondati per l'immagine */
-		overflow: hidden; /* Nasconde le parti dell'immagine che escono dalla box */
+		height: 300px; 
+		border-radius: 8px; 
+		overflow: hidden; 
 		margin-bottom: 45px;
 	}
 
 	.photo-container img {
 		width: 100%;
 		height: 100%;
-		object-fit: cover; /* Mantiene le proporzioni senza distorcere l'immagine */
-		border-radius: 8px; /* Angoli arrotondati per l'immagine */
+		object-fit: cover; 
+		border-radius: 8px; 
 	}
 
 	.photo-text{
 		position: absolute;
-		padding: 4px 8px; /* Spazio interno per migliorare l'aspetto */
-		border-radius: 4px; /* Angoli arrotondati per il box della data */
-		font-size: 14px; /* Dimensione del testo */
-		color: #333; /* Colore del testo */
+		padding: 4px 8px;
+		border-radius: 4px; 
+		font-size: 14px; 
+		color: #333; 
 		font-family: Arial, Helvetica, sans-serif;
 	}
 
 	#photo-date {
-		bottom: -8px; /* Distanza dal bordo inferiore */
+		bottom: -8px; 
 		right: 8px;
 	}
 
 	
 	#like-counter {
 		position: absolute;
-		bottom: 8px; /* Distanza dal bordo inferiore */
-		left: 8px; /* Distanza dal bordo destro */
+		bottom: 8px; 
+		left: 8px; 
 	}
 
 	#comment-counter {
 		position: absolute;
-		bottom: 8px; /* Distanza dal bordo inferiore */
+		bottom: 8px; 
 		left: 60px;
 	}
 
@@ -332,9 +350,15 @@ export default {
 		position: absolute;
 		top: 8px;
 		right: 8px;
-		border-radius: 4px; /* Angoli arrotondati per il contenitore del pulsante */
+		border-radius: 4px; 
 	}
 
-	
+	#icon-no-post {
+        color:gray;
+        width: 70px; /* Imposta la larghezza dell'icona */
+        height: 70px; /* Imposta l'altezza dell'icona */
+        margin-bottom: 10px; /* Distanza tra l'icona e la scritta */
+    }
+
 
 </style>

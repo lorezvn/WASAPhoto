@@ -35,7 +35,7 @@ export default {
 <template>
     <div
 		class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-		<h1 class="h2">New Photo</h1>
+		<h1 class="h2">Upload Photo</h1>
 	</div>
 
     <ErrorMsg v-if="errormsg"></ErrorMsg>
@@ -47,14 +47,16 @@ export default {
                 <input type="file" accept="image/*" class="form-control" @change="onChange" id="imgInput" ref="imgInput">
             </div>
         </form>
-        <div v-if="imageUrl" class="upload-content">
-            <div class="photo-container image-preview">
+        <div v-if="imageUrl" class="d-flex flex-column align-items-center">
+            <div class="photo-container image-preview mt-3">
                 <h5 class="d-flex justify-content-center">Image preview</h5>
                 <img :src="imageUrl" class="img-thumbnail" alt="Image preview" />
             </div>
             <div class="btn-toolbar">
                 <div class="btn-group me-2">
-                    <button v-if="image" @click="uploadImage" class="btn btn-primary btn-lg">Upload Image</button>
+                    <button v-if="image" @click="uploadImage" class="btn btn-primary btn-lg">
+                        Upload Image
+                    </button>
                 </div>
                 <div class="btn-group me-2">
                     <button v-if="image" @click="cancelImage" class="btn btn-secondary btn-lg">Cancel</button>
@@ -65,20 +67,6 @@ export default {
 </template>
 
 <style>
-
-    .upload-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .file-input {
-        margin-bottom: 20px;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 16px;
-    }
 
     .image-preview {
         max-width: 300px; /* Larghezza massima della box della foto */

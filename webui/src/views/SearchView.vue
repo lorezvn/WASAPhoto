@@ -13,7 +13,7 @@ export default {
 			// this.loading = true;
 			this.errormsg = null;
 			try {
-				let response = await this.$axios.get(`/users?username=${this.usernameQuery}`);
+				let response = await this.$axios.get(`/users/?username=${this.usernameQuery}`);
 				this.users = response.data;
 
 			} catch (e) {
