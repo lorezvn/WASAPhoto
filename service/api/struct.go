@@ -25,6 +25,7 @@ type Photo struct {
 type Comment struct {
 	CommentID int    `json:"commentID"`
 	UserID    int    `json:"userID"`
+	Username  string `json:"username"`
 	PhotoID   int    `json:"photoID"`
 	Message   string `json:"message"`
 	Date      string `json:"date"`

@@ -41,6 +41,8 @@ type AppDatabase interface {
 	GetName() (string, error)
 	SetName(name string) error
 
+	GetUsernameByUserID(userID int) (string, error)
+
 	UserExists(userID int) bool
 	UsernameExists(userID int, username string) bool
 	PhotoExists(photoID int, photoAuthorID int) bool

@@ -56,7 +56,6 @@ func (db *appdbimpl) UnbanUser(userID int, banID int) error {
 
 func (db *appdbimpl) BannedUsers(userID int) ([]User, error) {
 
-
 	var bannedUsers []User
 
 	query := `SELECT ban.banID, users.username 

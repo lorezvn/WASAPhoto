@@ -68,6 +68,13 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
+	username, err := rt.db.GetUsernameByUserID(userToken)
+	if err != nil {
+		rt.baseLogger.WithError(err).Error("Error getting username")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	commentID, date, err := rt.db.InsertComment(userToken, photoID, message)
 	if err != nil {
 		rt.baseLogger.WithError(err).Error("Error inserting comment into DB")
@@ -78,6 +85,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	comment = Comment{
 		CommentID: commentID,
 		UserID:    userToken,
+		Username:  username,
 		PhotoID:   photoID,
 		Message:   message,
 		Date:      date,

@@ -2,9 +2,9 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
-	"github.com/julienschmidt/httprouter"
 )
 
 // Returns all the users banned by a user
@@ -48,4 +48,3 @@ func (rt *_router) getBannedUsers(w http.ResponseWriter, r *http.Request, ps htt
 		return
 	}
 }
-

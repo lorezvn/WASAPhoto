@@ -43,7 +43,13 @@ func (db *appdbimpl) DeleteComment(commentID int) error {
 func (db *appdbimpl) GetComments(photoID int) ([]Comment, error) {
 
 	var comments []Comment
-	rows, err := db.c.Query("SELECT * FROM comments WHERE photoID = ?", photoID)
+
+	query := `SELECT comments.*, users.username
+			  FROM comments 
+			  JOIN users ON comments.userID = users.id
+			  WHERE photoID = ?`
+
+	rows, err := db.c.Query(query, photoID)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +57,7 @@ func (db *appdbimpl) GetComments(photoID int) ([]Comment, error) {
 
 	for rows.Next() {
 		var comment Comment
-		if err := rows.Scan(&comment.CommentID, &comment.UserID, &comment.PhotoID, &comment.Message, &comment.Date); err != nil {
+		if err := rows.Scan(&comment.CommentID, &comment.UserID, &comment.PhotoID, &comment.Message, &comment.Date, &comment.Username); err != nil {
 			return nil, err
 		}
 

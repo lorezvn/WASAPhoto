@@ -1,5 +1,7 @@
 
 <script>
+import Photo from '../components/Photo.vue';
+
 export default {
 	data: function() {
 		return {
@@ -21,34 +23,8 @@ export default {
 			}
 			this.loading = false;
 		},
-		async likePost(photo) {
-			// this.loading = true;
-			this.errormsg = null;
-			try {
-				let liked = this.isLiked(photo);
-				if (!liked) {
-					await this.$axios.put(`/users/${photo.userID}/photos/${photo.photoID}/likes/${this.userID}`);
-					photo.likes.push({ userID: this.userID });
-				} else {
-					await this.$axios.delete(`/users/${photo.userID}/photos/${photo.photoID}/likes/${this.userID}`);
-					photo.likes = photo.likes.filter(user => user.userID != this.userID);
-				}
-
-			} catch (e) {
-				this.errormsg = e.toString();
-			}
-			// this.loading = false;
-		},
-		isLiked(photo) {
-			return photo.likes.some(user => user.userID == this.userID);
-		},
 		visitProfile(userID) {
 			this.$router.push("/users/"+userID+"/profile")
-		},
-		formatDate(inputDate) {
-			const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric'};
-  			const formattedDate = new Date(inputDate).toLocaleDateString('en-US', options);
-  			return formattedDate;
 		},
 	},
 	async mounted() {
@@ -73,20 +49,10 @@ export default {
 						<button @click="visitProfile(photo.userID)" class="btn btn-sm btn-secondary position-absolute photo-owner">
 							<strong>@{{ photo.username }}</strong>
 						</button>
-						<div class="photo-container">
-							<img :src="'data:image/jpeg;base64,' + photo.image" alt="Image">
-							<div id="like-counter" :class="['btn btn-sm', isLiked(photo) ? 'btn-outline-danger' : 'btn-outline-secondary']" @click="likePost(photo)">
-								{{ photo.likes.length }}
-								<svg class="feather" :class="{'liked': isLiked(photo)}">
-									<use href="/feather-sprite-v4.29.0.svg#heart"/>
-								</svg>
-							</div>
-							<button id="comment-counter" class="btn btn-outline-secondary btn-sm">
-								{{ photo.comments.length }}
-								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#message-circle"/></svg>
-							</button>
-							<p id="photo-date" class="photo-text"> {{ formatDate(photo.date) }} </p>
-						</div>
+						<Photo
+							:photo="photo"
+							:owner="false">
+						</Photo>
 					</li>
 				</ul>
 			</div>
@@ -102,9 +68,5 @@ export default {
 		left: 8px;
 		background-color: rgb(255, 255, 255);
 		color:black
-	}
-
-	.feather.liked use {
-		fill: red;
 	}
 </style>
