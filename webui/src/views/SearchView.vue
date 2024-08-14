@@ -42,7 +42,7 @@ export default {
 				<div class="input-group mb-2">
 					<div class="input-group-prepend">
 						<div class="input-group-text">
-							<svg style="height:23px;" class="feather"><use href="/feather-sprite-v4.29.0.svg#search"/></svg>
+							<svg style="height:24px;" class="feather"><use href="/feather-sprite-v4.29.0.svg#search"/></svg>
 						</div>
 					</div>
 					<input type="text" v-model="usernameQuery" class="form-control" @input="searchUsers" placeholder="Search for users..."/>
@@ -72,6 +72,11 @@ export default {
 
 	.list-group-item:hover {
 		background-color: #e0e0e0;
+	}
+
+	.input-group-text {
+		border-top-right-radius: 0px;
+		border-bottom-right-radius: 0px;
 	}
 
 </style>

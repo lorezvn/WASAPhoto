@@ -43,13 +43,11 @@ export default {
     <div>
         <form>
             <div class="form-group mb-3">
-                <label class="mb-2" for="imgInput">Upload a new photo</label>
                 <input type="file" accept="image/*" class="form-control" @change="onChange" id="imgInput" ref="imgInput">
             </div>
         </form>
         <div v-if="imageUrl" class="d-flex flex-column align-items-center">
             <div class="photo-container image-preview mt-3">
-                <h5 class="d-flex justify-content-center">Image preview</h5>
                 <img :src="imageUrl" class="img-thumbnail" alt="Image preview" />
             </div>
             <div class="btn-toolbar">
@@ -69,7 +67,7 @@ export default {
 <style>
 
     .image-preview {
-        max-width: 300px; /* Larghezza massima della box della foto */
+        max-width: 300px; 
     }
     
 </style>

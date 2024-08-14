@@ -31,6 +31,8 @@ export default {
 				this.response = await this.$axios.put("/users/"+userID+"/username", {
                     username: this.newUsername
                 });
+
+                localStorage.setItem('username', this.newUsername);
                 this.$router.push("/users/"+userID+"/profile");
 
 			} catch (e) {
@@ -73,7 +75,7 @@ export default {
                 <div v-else class="valid-feedback">Looks good!</div>
             </div>
             <div>
-                <button type="submit" class="btn btn-primary" :disabled="invalidUsername(newUsername)">Submit</button>
+                <button type="submit" class="btn btn-primary ms-1" :disabled="invalidUsername(newUsername)">Submit</button>
             </div>
         </div>
     </form>
@@ -81,11 +83,11 @@ export default {
 
 <style>
 
-.change-username-section {
-    margin-top: 20px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
+    .change-username-section {
+        margin-top: 20px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
 
 </style>

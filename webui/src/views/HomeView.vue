@@ -63,10 +63,12 @@ export default {
 </template>
 
 <style>
+
 	.photo-owner {
 		top: 8px;
 		left: 8px;
 		background-color: rgb(255, 255, 255);
 		color:black
 	}
+	
 </style>

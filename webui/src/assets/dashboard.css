@@ -1,5 +1,7 @@
 body {
 	font-size: 0.875rem;
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
 }
 
 .feather {

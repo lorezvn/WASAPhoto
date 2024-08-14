@@ -17,8 +17,8 @@ export default {
 	},
 	methods: {
 		logout() {
-			localStorage.removeItem('token')
-			this.$router.replace("/login")
+			localStorage.clear();
+			this.$router.replace("/login");
 		}
 	},
 }
@@ -62,27 +62,9 @@ export default {
 							</RouterLink>
 						</li>
 						<li class="nav-item">
-							<RouterLink to="/upload" class="nav-link">
-								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#upload"/></svg>
-								Upload
-							</RouterLink>
-						</li>
-						<li class="nav-item">
 							<RouterLink :to="`/users/${userID}/profile`" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user"/></svg>
 								Profile
-							</RouterLink>
-						</li>
-					</ul>
-
-					<h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted text-uppercase">
-						<span>Secondary menu</span>
-					</h6>
-					<ul class="nav flex-column">
-						<li class="nav-item">
-							<RouterLink :to="'/some/' + 'variable_here' + '/path'" class="nav-link">
-								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#file-text"/></svg>
-								Item 1
 							</RouterLink>
 						</li>
 					</ul>

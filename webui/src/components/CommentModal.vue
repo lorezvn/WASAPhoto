@@ -75,7 +75,7 @@ export default {
         <div class="modal-dialog modal-dialog-centered model-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Comments {{photo.comments.length}} </h5>
+                    <h5 class="modal-title fw-bold">Comments {{photo.comments.length}} </h5>
                     <button type="button" class="btn-close" @click="closeModal" aria-label="Close">
                         <span aria-hidden="true"></span>
                     </button>
@@ -86,7 +86,7 @@ export default {
                         <li v-for="comment in photo.comments" 
                             class="list-group-item d-flex justify-content-between align-items-start mb-2">
                             <div class="ms-2 me-auto comment-content">
-                                <button class="btn btn-sm fw-bold btn-outline-secondary comment-owner" @click="visitProfile(comment.userID)">@{{ comment.username }}</button>
+                                <div class="comment-owner clickable p-1" @click="visitProfile(comment.userID)">@{{ comment.username }}</div>
                                 <div class="p-2">{{ comment.message }}</div>
                             </div>
                             <div v-if="isCommentOwner(comment)" class="position-absolute top-0 end-0 mt-2 me-2">
@@ -119,29 +119,15 @@ export default {
 
 <style scoped>
 
-    .modal.show {
-        display: block;
-        opacity: 1;
-    }
-
-    .modal-backdrop {  
-        opacity: 0.5;
-    }
-
     .modal-dialog {
         max-width: 45%; 
-        height: 80vh; /* Increased height */
+        height: 80vh; 
     }
 
     .modal-content {
         max-height: 80%;
         display: flex;
         flex-direction: column;
-    }
-
-    .modal-body {
-        overflow-y: auto;
-        flex-grow: 1; /* Ensures the body grows to fill available space */
     }
 
     .list-group-item {
@@ -155,21 +141,16 @@ export default {
     }
 
     .comment-owner {
-        color:black
+        font-weight: bold;
+        display: inline; 
     }
-
-    .comment-owner:hover {
-        color:white
-    }
-    
 
     .comment-content {
-        width: 100%; /* Adjust width as needed */
-        max-width: 400px; /* Fixed width, adjust as needed */
+        width: 100%; 
+        max-width: 400px; 
         word-wrap: break-word;
-        white-space: pre-wrap; /* Preserves line breaks in the content */
+        white-space: pre-wrap; 
     }
-
 
     .comment-date {
         color: gray;

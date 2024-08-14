@@ -2,6 +2,7 @@
 <script>
 import LoadingSpinner from '../components/LoadingSpinner.vue';
 import Photo from '../components/Photo.vue';
+import UserModal from '../components/UserModal.vue';
 
 export default {
 	data: function() {
@@ -10,12 +11,18 @@ export default {
 			loading: false,
 			username: "",
 			currentUserID: null,
+
 			photos: [],
 			followers: [],
-			followersCount: 0,
 			following: [],
+			followersCount: 0,
+
 			isFollowing: false,
 			isBanning: false,
+
+			showModal: false,
+			modalTitle: "",
+			modalUsers: [],
 		}
 	},
 	computed: {
@@ -68,10 +75,19 @@ export default {
 				if (!this.isFollowing) {
 					await this.$axios.put(`/users/${localStorage.getItem('token')}/follow/${this.currentUserID}`);
 					this.followersCount += 1
+					
+					// Add the current user's profile to the list of followers
+					this.followers.push({
+						userID: localStorage.getItem('token'),
+						username: localStorage.getItem('username'), 
+					});
 
 				} else {
 					await this.$axios.delete(`/users/${localStorage.getItem('token')}/follow/${this.currentUserID}`);
 					this.followersCount -= 1
+
+					// Remove the current user's profile from the list of followers
+					this.followers = this.followers.filter(follower => follower.userID != localStorage.getItem('token'));
 				}
 				this.isFollowing = !this.isFollowing
 			} catch(e) {
@@ -92,6 +108,22 @@ export default {
 				this.errormsg = e.toString();
 			}
 		},
+		showFollowersModal() {
+			this.modalTitle = "Followers"
+			this.modalUsers = this.followers;
+			this.showModal = true;
+			document.body.classList.add("modal-open");
+		},
+		showFollowingModal() {
+			this.modalTitle = "Following";
+			this.modalUsers = this.following;
+			this.showModal = true;
+			document.body.classList.add("modal-open");
+		},
+		closeModal() {
+            this.showModal = false;
+            document.body.classList.remove("modal-open");
+        },
 		handlePhotoDeleted(photoID) {
 			this.photos = this.photos.filter(photo => photo.photoID != photoID);
 		},
@@ -140,59 +172,56 @@ export default {
 	<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 
 	<LoadingSpinner :loading="loading">	
-		<div style="float:left;" class="d-flex-column mb-4">
-			<div class="d-flex justify-content-center">
-				<div id="counter">
-					<div class="follow-number">
-						{{ photos.length }}
-					</div>
-					<div class="follow-text">
-						photos
-					</div>
+		<div class="profile-info mb-4">
+			<div class="d-flex justify-content-center text-center">
+				<div class="profile-counter">
+					<div class="counter-number">{{ photos.length }}</div>
+					<div class="counter-text">photos</div>
 				</div>
-				<div id="counter">
-					<div class="follow-number">
-						{{ followersCount}}
-					</div>
-					<div class="follow-text">
-						followers
-					</div>
+				<div class="profile-counter clickable" @click="showFollowersModal">
+					<div class="counter-number">{{ followersCount}}</div>
+					<div class="counter-text">followers</div>
 				</div>
-				<div id="counter">
-					<div class="follow-number">
-						{{ following.length }}
-					</div>
-					<div class="follow-text">
-						following
-					</div>
+				<div class="profile-counter clickable" @click="showFollowingModal">
+					<div class="counter-number">{{ following.length }}</div>
+					<div class="counter-text">following</div>
 				</div>
 			</div>
 
+			<UserModal
+				:isVisible="showModal" 
+				:title="modalTitle" 
+				:users="modalUsers" 
+				@close="closeModal">
+			</UserModal>
+
 			<div v-if="!owner" class="btn-toolbar justify-content-center mt-3">
-				<div v-if="!isBanning" class="btn-group me-2">
-					<button v-if="!isFollowing" class="btn btn-primary btn-sm" @click="followUser">
-						Follow
-						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user-plus"/></svg>
-					</button>
-					<button v-if="isFollowing" class="btn btn-secondary btn-sm" @click="followUser">
-						Unfollow
-						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#user-minus"/></svg>
-					</button>
+				<div class="btn-group me-3">
+					<div v-if="!isBanning"
+						:class="['btn btn-sm', isFollowing ? 'btn-secondary' : 'btn-primary']" 
+						@click="followUser"
+					>
+						{{ isFollowing ? 'Unfollow' : 'Follow' }}
+						<svg class="feather">
+							<use :href="'/feather-sprite-v4.29.0.svg#' + (isFollowing ? 'user-minus' : 'user-plus')"/>
+						</svg>
+					</div>
 				</div>
-				<div class="btn-group me-2">
-					<button v-if="!isBanning" class="btn btn-primary btn-sm" @click="banUser">
-						Ban
-						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#lock"/></svg>
-					</button>
-					<button v-if="isBanning" class="btn btn-secondary btn-sm" @click="banUser">
-						Unban
-						<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#unlock"/></svg>
-					</button>
+				<div class="btn-group me-3">
+					<div 
+						:class="['btn btn-sm', isBanning ? 'btn-secondary' : 'btn-primary']" 
+						@click="banUser"
+					>
+						{{ isBanning ? 'Unban' : 'Ban' }}
+						<svg class="feather">
+							<use :href="'/feather-sprite-v4.29.0.svg#' + (isBanning ? 'unlock' : 'lock')"/>
+						</svg>
+					</div>
 				</div>
 			</div>
 		</div>
 
-		<div v-if="!isBanning" style="clear:both;" class="mt-4">
+		<div v-if="!isBanning" class="photos-section mt-4">
 			<div v-if="photos.length > 0">
 				<ul class="photo-list">
 					<li v-for="photo in photos">
@@ -204,9 +233,9 @@ export default {
 					</li>
 				</ul>	
 			</div>
-			<div v-else class="d-flex flex-column align-items-center justify-content-center pt-3 pb-2 border-top" style="height:40vh;">
-            	<svg id="icon-no-post" class="feather"><use href="/feather-sprite-v4.29.0.svg#camera-off"/></svg>
-				<p style="color:gray; font-weight: bold;">No photos</p>
+			<div v-else class="no-photos d-flex flex-column align-items-center justify-content-center pt-3 pb-2 border-top">
+            	<svg id="no-photos-icon" class="feather"><use href="/feather-sprite-v4.29.0.svg#camera-off"/></svg>
+				<p class="no-photos-text">No photos</p>
 			</div>
 		</div>
 	</LoadingSpinner>
@@ -214,21 +243,29 @@ export default {
 
 <style>
 
-	#counter {
-		width: 80px;
-		text-align: center;
+	.profile-info {
+		float: left;
 	}
 
-	.follow-number {
+	.profile-counter {
+		width: 70px;
+		margin: 0 10px;
+		text-align: center;
+		padding: 10px;
+	}
+
+	.counter-number {
 		font-size: 20px;
 		font-weight: bold;
-		text-align: center;
 	}
 
-	.follow-text {
+	.counter-text {
 		font-size: 14px;
-		color:gray;
-		text-align: center;
+		color: gray;
+	}
+
+	.photos-section {
+		clear: both;
 	}
 
 	.photo-list {
@@ -236,24 +273,33 @@ export default {
 		padding: 0;
 		margin: 0;
 		display: flex;
-		gap: 32px; /* Spazio tra le foto */
-		flex-wrap: wrap; /* Permette la visualizzazione in più righe, se necessario */
+		gap: 32px;
+		flex-wrap: wrap;
 	}
 
 	.photo-list li {
-		width: 100%; /* Può essere modificato se si desidera un layout a colonne */
-		max-width: 300px; /* Larghezza massima della box della foto */
-		border-radius: 12px; /* Angoli arrotondati per la box */
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Ombra sotto la box */
-		padding: 0; /* Rimuovi il padding interno per evitare spazi aggiuntivi */
-		position: relative; /* Necessario per posizionare il testo all'interno della box */
+		width: 100%;
+		max-width: 300px;
+		border-radius: 12px;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+		padding: 0;
+		position: relative;
 	}
 
-	#icon-no-post {
-        color:gray;
-        width: 70px; /* Imposta la larghezza dell'icona */
-        height: 70px; /* Imposta l'altezza dell'icona */
-        margin-bottom: 5px; /* Distanza tra l'icona e la scritta */
-    }
+	.no-photos {
+		height: 40vh;
+	}
+
+	#no-photos-icon{
+		color: gray;
+		width: 70px;
+		height: 70px;
+		margin-bottom: 5px;
+	}
+
+	.no-photos-text {
+		color: gray;
+		font-weight: bold;
+	}
 
 </style>

@@ -1,0 +1,24 @@
+.modal.show {
+	display: block;
+	opacity: 1;
+}
+
+.modal-backdrop {  
+	opacity: 0.5;
+}
+
+.modal-body {
+    overflow-y: auto;
+    flex-grow: 1; 
+}
+
+.clickable {
+	cursor: pointer;
+	border-radius: 8px;
+	transition: background-color 0.2s;
+}
+
+.clickable:hover {
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+	background-color: #e0e0e0;
+}

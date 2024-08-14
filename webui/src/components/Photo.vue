@@ -67,7 +67,8 @@ export default {
         <img :src="'data:image/jpeg;base64,'+photo.image" alt="Image">
         <div v-if="owner" class="delete-button-container">
             <div class="btn btn-sm btn-danger" @click="deletePhoto(photo)">
-            <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#trash-2"/></svg>
+                Delete
+                <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#trash-2"/></svg>
             </div>
         </div>
         <div class="d-flex align-items-center justify-content-between">
