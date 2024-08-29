@@ -109,16 +109,20 @@ export default {
 			}
 		},
 		showFollowersModal() {
-			this.modalTitle = "Followers"
-			this.modalUsers = this.followers;
-			this.showModal = true;
-			document.body.classList.add("modal-open");
+			if (!this.isBanning) {
+				this.modalTitle = "Followers"
+				this.modalUsers = this.followers;
+				this.showModal = true;
+				document.body.classList.add("modal-open");
+			}
 		},
 		showFollowingModal() {
-			this.modalTitle = "Following";
-			this.modalUsers = this.following;
-			this.showModal = true;
-			document.body.classList.add("modal-open");
+			if (!this.isBanning) {
+				this.modalTitle = "Following";
+				this.modalUsers = this.following;
+				this.showModal = true;
+				document.body.classList.add("modal-open");
+			}
 		},
 		closeModal() {
             this.showModal = false;
@@ -178,11 +182,11 @@ export default {
 					<div class="counter-number">{{ photos.length }}</div>
 					<div class="counter-text">photos</div>
 				</div>
-				<div class="profile-counter clickable" @click="showFollowersModal">
+				<div :class="['profile-counter', isBanning ? '' : 'clickable']" @click="showFollowersModal">
 					<div class="counter-number">{{ followersCount}}</div>
 					<div class="counter-text">followers</div>
 				</div>
-				<div class="profile-counter clickable" @click="showFollowingModal">
+				<div :class="['profile-counter', isBanning ? '' : 'clickable']" @click="showFollowingModal">
 					<div class="counter-number">{{ following.length }}</div>
 					<div class="counter-text">following</div>
 				</div>
@@ -224,9 +228,11 @@ export default {
 		<div v-if="!isBanning" class="photos-section mt-4">
 			<div v-if="photos.length > 0">
 				<ul class="photo-list">
-					<li v-for="photo in photos">
+					<li v-for="photo in photos" :key="photo.photoID">
 						<Photo
 							:photo="photo"
+							:likes="photo.likes"
+							:comments="photo.comments"
 							:owner="owner"
 							@photoDeleted="handlePhotoDeleted">
 						</Photo>

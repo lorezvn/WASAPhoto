@@ -37,7 +37,7 @@ export default {
 
 			} catch (e) {
                 this.errorStatus = e.response.status
-                this.errormsg = e.response.data.message;
+                this.errormsg = e.toString();
 			}
         },
         invalidUsername(username) {
@@ -71,7 +71,7 @@ export default {
                     :class="[newUsername === '' ? 'form-text text-muted' : 'invalid-feedback']"> 
                     Must be 3-16 characters long.
                 </div>
-                <div v-else-if="errorStatus === 409" class="invalid-feedback">{{ errormsg }}</div>
+                <div v-else-if="errorStatus === 409" class="invalid-feedback">Username chosen already exists</div>
                 <div v-else class="valid-feedback">Looks good!</div>
             </div>
             <div>

@@ -1,6 +1,6 @@
 <script>
 export default {
-    props: ["isVisible", "photo"],
+    props: ["isVisible", "photo", "comments"],
     data() {
         return {
             errormsg: null,
@@ -40,7 +40,6 @@ export default {
             this.errormsg = null;
             try {
                 await this.$axios.delete(`/users/${this.photo.userID}/photos/${this.photo.photoID}/comments/${comment.commentID}`);
-
                 this.$emit('commentDeleted', comment.commentID);
 
             } catch (e) {
@@ -75,15 +74,16 @@ export default {
         <div class="modal-dialog modal-dialog-centered model-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Comments {{photo.comments.length}} </h5>
+                    <h5 class="modal-title fw-bold">Comments {{comments.length}} </h5>
                     <button type="button" class="btn-close" @click="closeModal" aria-label="Close">
                         <span aria-hidden="true"></span>
                     </button>
                 </div>
                 <div id="commentsContainer" class="modal-body">
-                    <div class="ms-2" v-if="photo.comments.length === 0">No comments for this photo</div>
+                    <div class="ms-2" v-if="comments.length === 0">No comments for this photo</div>
                     <ul class="list-group">
-                        <li v-for="comment in photo.comments" 
+                        <li v-for="comment in comments" 
+                            :key="comment.commentID"
                             class="list-group-item d-flex justify-content-between align-items-start mb-2">
                             <div class="ms-2 me-auto comment-content">
                                 <div class="comment-owner clickable p-1" @click="visitProfile(comment.userID)">@{{ comment.username }}</div>

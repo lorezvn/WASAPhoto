@@ -53,15 +53,13 @@ func (rt *_router) setMyUsername(w http.ResponseWriter, r *http.Request, ps http
 
 	if !validUsername(newUsername) {
 		rt.baseLogger.Error("Invalid username")
-		writeJSONResponse(w, http.StatusBadRequest, "A valid username must be 3-16 characters long")
-		// w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	if rt.db.UsernameExists(userID, newUsername) {
 		rt.baseLogger.Error("Username chosen already exists")
-		writeJSONResponse(w, http.StatusConflict, "Username chosen already exists")
-		// w.WriteHeader(http.StatusConflict)
+		w.WriteHeader(http.StatusConflict)
 		return
 	}
 

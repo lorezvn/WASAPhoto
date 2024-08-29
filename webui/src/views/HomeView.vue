@@ -51,6 +51,8 @@ export default {
 						</button>
 						<Photo
 							:photo="photo"
+							:likes="photo.likes"
+							:comments="photo.comments"
 							:owner="false">
 						</Photo>
 					</li>

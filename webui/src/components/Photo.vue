@@ -1,9 +1,11 @@
 
 <script>
 export default {
-    props: ["photo", "owner"],
+    props: ["photo", "comments", "likes", "owner"],
     data: function() {
         return {
+            localLikes: [],
+            localComments: [],
             errormsg: null,
             showModal: false
         }
@@ -17,10 +19,10 @@ export default {
                 let token = localStorage.getItem('token');
                 if (!liked) {
                     await this.$axios.put(`/users/${photo.userID}/photos/${photo.photoID}/likes/${token}`);
-                    photo.likes.push({ userID: token });
+                    this.localLikes.push({ userID: token });
                 } else {
                     await this.$axios.delete(`/users/${photo.userID}/photos/${photo.photoID}/likes/${token}`);
-                    photo.likes = photo.likes.filter(user => user.userID != token);
+                    this.localLikes = this.localLikes.filter(user => user.userID != token);
                 }
 
             } catch (e) {
@@ -36,14 +38,14 @@ export default {
             }
         },
         handleCommentAdded(newComment) {
-            this.photo.comments.push(newComment)
+            this.localComments.push(newComment)
         },
         handleCommentDeleted(commentID) {
-            this.photo.comments = this.photo.comments.filter(comment => comment.commentID != commentID);
+            this.localComments = this.localComments.filter(comment => comment.commentID != commentID);
         },
-        isLiked(photo) {
+        isLiked() {
             let token = localStorage.getItem('token');
-            return photo.likes.some(user => user.userID == token);
+            return this.localLikes.some(user => user.userID == token);
         },
         formatDate(inputDate) {
             const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' };
@@ -58,6 +60,11 @@ export default {
             this.showModal = false;
             document.body.classList.remove("modal-open");
         }
+    },
+
+    mounted() {
+        this.localLikes = this.likes;
+        this.localComments = this.comments;
     }
 };
 </script>
@@ -73,21 +80,21 @@ export default {
         </div>
         <div class="d-flex align-items-center justify-content-between">
             <div>
-                <div v-if="!owner" id="like-counter" :class="['btn btn-sm', isLiked(photo) ? 'btn-outline-danger' : 'btn-outline-secondary']" @click="likePost(photo)">
-                    {{ photo.likes.length }}
-                    <svg class="feather" :class="{'liked': isLiked(photo)}">
+                <div v-if="!owner" id="like-counter" :class="['btn btn-sm', isLiked() ? 'btn-outline-danger' : 'btn-outline-secondary']" @click="likePost(photo)">
+                    {{ localLikes.length }}
+                    <svg class="feather" :class="{'liked': isLiked()}">
                         <use href="/feather-sprite-v4.29.0.svg#heart"/>
                     </svg>
                 </div>
                 <button v-else id="like-counter" class="btn btn-outline-secondary btn-sm me" @click="likePost(photo)" disabled>
-                    {{ photo.likes.length }}
+                    {{ localLikes.length }}
                     <svg class="feather" :class="{'liked': isLiked(photo)}">
                         <use href="/feather-sprite-v4.29.0.svg#heart"/>
                     </svg>
                 </button>
                 
                 <button id="comment-counter" class="btn btn-outline-secondary btn-sm" @click="toggleModal">
-                    {{ photo.comments.length }}
+                    {{ localComments.length }}
                     <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#message-circle"/></svg>
                 </button>
             </div>
@@ -96,6 +103,7 @@ export default {
         <CommentModal
             :isVisible="showModal"
             :photo="photo"
+            :comments="localComments"
             @commentAdded="handleCommentAdded" 
             @commentDeleted="handleCommentDeleted"
             @close="closeModal">

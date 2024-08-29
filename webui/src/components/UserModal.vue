@@ -29,6 +29,7 @@ export default {
                     <div class="ms-2" v-if="users.length === 0">No users found</div>
                     <ul v-if=users.length class="list-group list-group-flush">
                         <li v-for="user in users" 
+                            :key="user.userID"
                             class="list-group-item d-flex justify-content-between align-items-center" 
                             @click="visitProfile(user.userID)" 
                             style="cursor: pointer;">

@@ -52,6 +52,7 @@ export default {
 
 		<ul v-if=users.length class="list-group">
 			<li v-for="user in users" 
+				:key="user.userID"
 				class="list-group-item d-flex justify-content-between align-items-center" 
 				@click="visitProfile(user.userID)" 
 				style="cursor: pointer;">

@@ -1,21 +1,10 @@
 package api
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
 )
-
-type ResponseMessage struct {
-	Message string `json:"message"`
-}
-
-func writeJSONResponse(w http.ResponseWriter, status int, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(ResponseMessage{Message: message})
-}
 
 func extractBearerToken(r *http.Request) int {
 
