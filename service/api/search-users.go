@@ -30,8 +30,11 @@ func (rt *_router) searchUsers(w http.ResponseWriter, r *http.Request, ps httpro
 
 	// Check if usernameQuery is empty
 	if usernameQuery == "" {
+		if err := json.NewEncoder(w).Encode(User{}); err != nil {
+			rt.baseLogger.WithError(err).Error("Encoding JSON failed")
+			w.WriteHeader(http.StatusBadRequest)
+		}
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode([]User{})
 		return
 	}
 

@@ -95,6 +95,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 	if err := json.NewEncoder(w).Encode(comment); err != nil {
 		rt.baseLogger.WithError(err).Error("Encoding JSON failed")
 		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	rt.baseLogger.Info("Comment successfully posted")
