@@ -74,6 +74,12 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 		return
 	}
 
+	if rt.db.LikeExists(userToken, photoID) {
+		rt.baseLogger.Error("Like already exists")
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
 	date, err := rt.db.InsertLike(userToken, photoID)
 	if err != nil {
 		rt.baseLogger.WithError(err).Error("Error inserting like into DB")

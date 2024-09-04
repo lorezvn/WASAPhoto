@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/julienschmidt/httprouter"
+	"wasaphoto.uniroma1.it/wasaphoto/service/database"
 )
 
 /*
@@ -59,12 +60,12 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	if err = rt.db.UnbanUser(userToken, banID); err != nil {
-		if errors.Is(err, errors.New("ban not found")) {
-			rt.baseLogger.WithError(err).Error("Error inserting ban into DB")
+		if errors.Is(err, database.ErrBanNotFound) {
+			rt.baseLogger.WithError(err).Error("Error removing ban from DB")
 			w.WriteHeader(http.StatusNotFound)
 			return
 		} else {
-			rt.baseLogger.WithError(err).Error("Error inserting ban into DB")
+			rt.baseLogger.WithError(err).Error("Error removing ban from DB")
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

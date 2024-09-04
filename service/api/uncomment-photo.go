@@ -2,9 +2,11 @@ package api
 
 import (
 	"errors"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
+
+	"github.com/julienschmidt/httprouter"
+	"wasaphoto.uniroma1.it/wasaphoto/service/database"
 )
 
 /*
@@ -61,7 +63,7 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	if err := rt.db.DeleteComment(commentID); err != nil {
-		if errors.Is(err, errors.New("Comment not found")) {
+		if errors.Is(err, database.ErrCommentNotFound) {
 			rt.baseLogger.WithError(err).Error("Error removing comment from DB")
 			w.WriteHeader(http.StatusNotFound)
 			return

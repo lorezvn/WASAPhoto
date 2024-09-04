@@ -1,8 +1,15 @@
 package database
 
-import (
-	"errors"
-)
+func (db *appdbimpl) FollowExists(userID int, followID int) bool {
+
+	var count int
+	err := db.c.QueryRow("SELECT COUNT(*) FROM follow WHERE userID = ? AND followID = ?", userID, followID).Scan(&count)
+	if err != nil {
+		return false
+	}
+
+	return count > 0
+}
 
 func (db *appdbimpl) FollowUser(userID int, followID int) error {
 
@@ -26,7 +33,7 @@ func (db *appdbimpl) UnfollowUser(userID int, followID int) error {
 	}
 
 	if rows == 0 {
-		return errors.New("follow not found")
+		return ErrFollowNotFound
 	}
 	return nil
 }

@@ -2,9 +2,11 @@ package api
 
 import (
 	"errors"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
+
+	"github.com/julienschmidt/httprouter"
+	"wasaphoto.uniroma1.it/wasaphoto/service/database"
 )
 
 /*
@@ -68,7 +70,7 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	if err := rt.db.DeleteLike(userID, photoID); err != nil {
-		if errors.Is(err, errors.New("Like not found")) {
+		if errors.Is(err, database.ErrLikeNotFound) {
 			rt.baseLogger.WithError(err).Error("Error removing like from DB")
 			w.WriteHeader(http.StatusNotFound)
 			return

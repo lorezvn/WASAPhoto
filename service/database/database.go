@@ -47,6 +47,8 @@ type AppDatabase interface {
 	UsernameExists(userID int, username string) bool
 	PhotoExists(photoID int, photoAuthorID int) bool
 	BanExists(userID int, banID int) bool
+	LikeExists(userID int, photoID int) bool
+	FollowExists(userID int, followID int) bool
 
 	CreateUser(username string) (int, error)
 	ChangeUsername(userID int, newUsername string) error

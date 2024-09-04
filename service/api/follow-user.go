@@ -61,6 +61,12 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
+	if rt.db.FollowExists(userToken, followID) {
+		rt.baseLogger.Error("Follow already exists")
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
 	if err = rt.db.FollowUser(userToken, followID); err != nil {
 		rt.baseLogger.WithError(err).Error("Error inserting follow into DB")
 		w.WriteHeader(http.StatusInternalServerError)

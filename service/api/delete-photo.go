@@ -2,9 +2,11 @@ package api
 
 import (
 	"errors"
-	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
+
+	"github.com/julienschmidt/httprouter"
+	"wasaphoto.uniroma1.it/wasaphoto/service/database"
 )
 
 /*
@@ -48,7 +50,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	if err := rt.db.DeletePhoto(photoID); err != nil {
-		if errors.Is(err, errors.New("Photo not found")) {
+		if errors.Is(err, database.ErrPhotoNotFound) {
 			rt.baseLogger.WithError(err).Error("Error removing photo from DB")
 			w.WriteHeader(http.StatusNotFound)
 			return

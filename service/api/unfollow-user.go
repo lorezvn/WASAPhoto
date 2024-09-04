@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/julienschmidt/httprouter"
+	"wasaphoto.uniroma1.it/wasaphoto/service/database"
 )
 
 /*
@@ -64,12 +65,12 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	if err = rt.db.UnfollowUser(userToken, followID); err != nil {
-		if errors.Is(err, errors.New("follow not found")) {
-			rt.baseLogger.WithError(err).Error("Error inserting follow into DB")
+		if errors.Is(err, database.ErrFollowNotFound) {
+			rt.baseLogger.WithError(err).Error("Error removing follow from DB")
 			w.WriteHeader(http.StatusNotFound)
 			return
 		} else {
-			rt.baseLogger.WithError(err).Error("Error inserting follow into DB")
+			rt.baseLogger.WithError(err).Error("Error removing follow from DB")
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}

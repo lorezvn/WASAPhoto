@@ -1,9 +1,5 @@
 package database
 
-import (
-	"errors"
-)
-
 func (db *appdbimpl) BanExists(userID int, banID int) bool {
 
 	var id int
@@ -13,18 +9,6 @@ func (db *appdbimpl) BanExists(userID int, banID int) bool {
 }
 
 func (db *appdbimpl) BanUser(userID int, banID int) error {
-
-	/*
-		var count int
-		err := db.c.QueryRow("SELECT COUNT(*) FROM ban WHERE userID = ? AND banID = ?", userID, banID).Scan(&count)
-		if err != nil {
-			return err
-		}
-
-		if count > 0 {
-			return errors.New("User already banned")
-		}
-	*/
 
 	_, err := db.c.Exec("INSERT INTO ban (userID, banID) VALUES (?, ?)", userID, banID)
 	if err != nil {
@@ -49,7 +33,7 @@ func (db *appdbimpl) UnbanUser(userID int, banID int) error {
 	}
 
 	if rows == 0 {
-		return errors.New("ban not found")
+		return ErrBanNotFound
 	}
 	return nil
 }

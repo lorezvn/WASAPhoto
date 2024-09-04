@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"errors"
 	"time"
 )
 
@@ -53,7 +52,7 @@ func (db *appdbimpl) DeletePhoto(photoID int) error {
 	}
 
 	if rows == 0 {
-		return errors.New("photo not found")
+		return ErrPhotoNotFound
 	}
 
 	return nil

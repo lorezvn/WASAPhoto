@@ -55,6 +55,12 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
+	if rt.db.BanExists(userToken, banID) {
+		rt.baseLogger.Error("Ban already exists")
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+
 	if err = rt.db.BanUser(userToken, banID); err != nil {
 		rt.baseLogger.WithError(err).Error("Error inserting ban into DB")
 		w.WriteHeader(http.StatusInternalServerError)

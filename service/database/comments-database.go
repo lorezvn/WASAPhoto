@@ -1,7 +1,6 @@
 package database
 
 import (
-	"errors"
 	"time"
 )
 
@@ -34,7 +33,7 @@ func (db *appdbimpl) DeleteComment(commentID int) error {
 	}
 
 	if rows == 0 {
-		return errors.New("comment not found")
+		return ErrCommentNotFound
 	}
 
 	return nil

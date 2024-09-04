@@ -1,9 +1,19 @@
 package database
 
 import (
-	"errors"
 	"time"
 )
+
+func (db *appdbimpl) LikeExists(userID int, photoID int) bool {
+
+	var count int
+	err := db.c.QueryRow("SELECT COUNT(*) FROM likes WHERE userID = ? AND photoID = ?", userID, photoID).Scan(&count)
+	if err != nil {
+		return false
+	}
+
+	return count > 0
+}
 
 func (db *appdbimpl) InsertLike(userID int, photoID int) (string, error) {
 
@@ -29,7 +39,7 @@ func (db *appdbimpl) DeleteLike(userID int, photoID int) error {
 	}
 
 	if rows == 0 {
-		return errors.New("like not found")
+		return ErrLikeNotFound
 	}
 
 	return nil

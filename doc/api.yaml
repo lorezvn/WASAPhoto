@@ -317,6 +317,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Like" 
+        "204": 
+          description: Like already exists
         "400":
           $ref: "#/components/responses/400BadRequest"
         "403": 
