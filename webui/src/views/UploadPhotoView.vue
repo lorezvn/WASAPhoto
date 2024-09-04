@@ -3,6 +3,7 @@
 export default {
     data: function() {
         return {
+            errormsg: null,
             image: null,
             imageUrl: null
         }
