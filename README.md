@@ -1,5 +1,7 @@
 # WASAPhoto
 
+## Description
+
 **WASAPhoto** is a social networking web application focused on photo sharing, similar to Instagram. 
 Built with modern web technologies, WASAPhoto allows users to upload images and interact with other users through comments, likes, follows and other.
 
