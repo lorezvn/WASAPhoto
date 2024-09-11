@@ -101,6 +101,10 @@ exit
 ## To-do
 - [ ] Add Docker Compose to manage backend and frontend services.
 
+# Basic structure 
+
+See [Fantastic Coffee (decaffeinated)](https://github.com/sapienzaapps/fantastic-coffee-decaffeinated)
+
 ## License
 
 See [LICENSE](LICENSE).
