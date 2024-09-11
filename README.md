@@ -1,10 +1,8 @@
-# Fantastic coffee (decaffeinated)
+# WASAPhoto
 
-This repository contains the basic structure for [Web and Software Architecture](http://gamificationlab.uniroma1.it/en/wasa/) homework project.
-It has been described in class.
+**WASAPhoto** is a social networking web application focused on photo sharing, similar to Instagram. Built with modern web technologies, WASAPhoto allows users to upload images and interact with other users through comments, likes, follows and other.
 
-"Fantastic coffee (decaffeinated)" is a simplified version for the WASA course, not suitable for a production environment.
-The full version can be found in the "Fantastic Coffee" repository.
+[Web and Software Architecture](http://gamificationlab.uniroma1.it/en/wasa/) homework project.
 
 ## Project structure
 
@@ -25,31 +23,6 @@ The full version can be found in the "Fantastic Coffee" repository.
 
 Other project files include:
 * `open-npm.sh` starts a new (temporary) container using `node:lts` image for safe web frontend development (you don't want to use `npm` in your system, do you?)
-
-## Go vendoring
-
-This project uses [Go Vendoring](https://go.dev/ref/mod#vendoring). You must use `go mod vendor` after changing some dependency (`go get` or `go mod tidy`) and add all files under `vendor/` directory in your commit.
-
-For more information about vendoring:
-
-* https://go.dev/ref/mod#vendoring
-* https://www.ardanlabs.com/blog/2020/04/modules-06-vendoring.html
-
-## Node/NPM vendoring
-
-This repository contains the `webui/node_modules` directory with all dependencies for Vue.JS. You should commit the content of that directory and both `package.json` and `package-lock.json`.
-
-## How to set up a new project from this template
-
-You need to:
-
-* Change the Go module path to your module path in `go.mod`, `go.sum`, and in `*.go` files around the project
-* Rewrite the API documentation `doc/api.yaml`
-* If no web frontend is expected, remove `webui` and `cmd/webapi/register-webui.go`
-* If no cronjobs or health checks are needed, remove them from `cmd/`
-* Update top/package comment inside `cmd/webapi/main.go` to reflect the actual project usage, goal, and general info
-* Update the code in `run()` function (`cmd/webapi/main.go`) to connect to databases or external resources
-* Write API code inside `service/api`, and create any further package inside `service/` (or subdirectories)
 
 ## How to build
 
@@ -86,6 +59,26 @@ If you want to launch the WebUI, open a new tab and launch:
 npm run dev
 ```
 
+## Docker containers
+
+Build docker images:
+```shell
+# Build backend image
+docker build -t wasaphoto-backend:latest -f Dockerfile.backend .
+
+# Build frontend image
+docker build -t wasaphoto-frontend:latest -f Dockerfile.frontend .
+```
+
+Run docker images:
+```shell
+# Run backend image
+docker run -it -p 3000:3000 --rm wasaphoto-backend:latest
+
+# Run frontend image
+docker run -it -p 8080:80 --rm wasaphoto-frontend:latest
+```
+
 ## Known issues
 
 ### Apple M1 / ARM: `failed to load config from`...
@@ -102,19 +95,10 @@ exit
 # Now you can continue as indicated in "How to build/run"
 ```
 
-**Use these instructions only if you get an error. Do not use it if your build is OK**.
-
-### My build works when I use `npm run dev`, however there is a Javascript crash in production/grading
-
-Some errors in the code are somehow not shown in `vite` development mode. To preview the code that will be used in production/grading settings, use the following commands:
-
-```shell
-./open-npm.sh
-# (here you're inside the NPM container)
-npm run build-prod
-npm run preview
-```
+## To-do
+- [ ] Add Docker Compose to manage backend and frontend services.
 
 ## License
 
+See [Basic structure](https://github.com/sapienzaapps/fantastic-coffee-decaffeinated)
 See [LICENSE](LICENSE).
